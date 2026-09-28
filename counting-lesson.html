@@ -1,0 +1,950 @@
+<!doctype html><html lang="en" data-pen-mode="viewport"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 3 · Lesson</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{
+  --paper:#f2f5f4; --sheet:#fbfcfb; --rule:#d5dfe2; --rule-2:#e6edef;
+  --ink:#1b3358; --ink-soft:#4a6385; --graphite:#3b454f; --muted:#6b7680;
+  --red:#b8322a; --amber:#b57b0e; --green:#2e7d5b; --green-soft:#d9ece3; --red-soft:#f5dfdc; --amber-soft:#f6ead1;
+  --console:#16202b; --console-ink:#d3dfe6;
+  --serif:"Fraunces", Georgia, "Times New Roman", serif;
+  --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--graphite);font:15px/1.5 var(--sans);
+  background-image:linear-gradient(var(--rule-2) 1px,transparent 1px),linear-gradient(90deg,var(--rule-2) 1px,transparent 1px);
+  background-size:24px 24px}
+a{color:var(--ink)} a:hover{color:var(--red)}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:2px}
+button{font:inherit;cursor:pointer}
+.eq{font-family:var(--serif);font-size:1.3rem;color:var(--ink);text-align:center;padding:.7rem 1rem;margin:0 0 1rem;
+  background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--red)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em;line-height:1.15}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em}
+.frac>span:last-child{padding:0 .25em}
+.fig.strip{display:flex;justify-content:center;gap:0;margin:1rem 0}
+.fig.strip span{width:44px;height:44px;border:2px solid var(--ink);margin-left:-2px;background:#fff}
+.fig.grid5{display:grid;grid-template-columns:repeat(5,34px);width:max-content;margin:1rem auto;border:2px solid var(--ink)}
+.fig.grid5 span{height:34px;border:1px solid var(--ink-soft);background:#fff}
+
+/* ---- pen ---- */
+.ink{position:fixed;left:0;top:0;pointer-events:none;z-index:70}
+#ink-live{z-index:71}
+html.pen-on #ink-live{cursor:crosshair}
+#pen-toggle{position:fixed;left:14px;bottom:14px;z-index:80;background:var(--ink);color:#fff;border:0;border-radius:22px;
+  padding:.5rem 1rem .5rem .8rem;font-weight:600;box-shadow:0 2px 0 #0d1d33}
+#pen-toggle[aria-pressed=true]{background:var(--red);box-shadow:0 2px 0 #7a1e18}
+#pen-toggle svg{vertical-align:-3px;margin-right:.35rem}
+#pen-bar{position:fixed;left:14px;bottom:62px;z-index:80;background:var(--sheet);border:1.5px solid var(--ink);
+  padding:.45rem;display:flex;flex-direction:column;gap:.35rem;width:max-content}
+#pen-bar[hidden]{display:none}
+#pen-bar .row{display:flex;gap:.3rem;align-items:center}
+#pen-bar button{border:1px solid var(--rule);background:#fff;min-width:32px;height:32px;padding:0 .45rem;color:var(--graphite);font-size:.8rem}
+#pen-bar button[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink);color:var(--ink);font-weight:600}
+#pen-bar .sw{width:32px;padding:0}
+#pen-bar .sw i{display:block;width:16px;height:16px;border-radius:50%;margin:auto}
+#pen-bar .nib i{display:block;margin:auto;border-radius:4px;background:var(--graphite);width:18px}
+#pen-toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:90;background:var(--console);color:#fff;
+  padding:.45rem .9rem;font-size:.85rem;opacity:0;transition:opacity .2s;pointer-events:none}
+#pen-toast.show{opacity:1}
+@media print{.pen-ui,.ink{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ---- pick grid ---- */
+.pfig{margin:1.2rem 0}
+.pscroll{overflow-x:auto;padding-bottom:.3rem}
+.pgrid{display:grid;grid-template-columns:auto repeat(var(--cols),minmax(3.2rem,1fr));gap:3px;width:max-content;font-family:var(--sans)}
+.pgrid.compact{grid-template-columns:auto repeat(var(--cols),11px);gap:1px}
+.ph{font:600 .85rem var(--sans);color:var(--ink);display:grid;place-items:center;padding:.1rem .2rem}
+.ph.corner{font:500 .7rem var(--sans);color:var(--muted);display:flex;flex-direction:column;align-items:flex-end;justify-content:end;line-height:1.2}
+.pgrid.compact .ph{font-size:.55rem;padding:0}
+.pc{min-height:3rem;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--rule);font-size:.8rem;line-height:1.15}
+.pc b{font:600 .88rem var(--sans)} .pc i{font-style:normal;font-size:.72rem;color:var(--green);margin-top:.1rem}
+.pgrid.compact .pc{min-height:11px;width:11px;border:0}
+.pc.keep{background:#dcefe6;border-color:#9ccbb4;color:#1d5a40}
+.pc.plain{background:#e6f0ec;border-color:#bcd8cb;color:#1d5a40}
+.pc.twin{background:#eceae6;border-color:#d4d0c8;color:#77716a}
+.pc.x{background:#f3f1ee;color:#9b958d;border-color:#dcd8d1}
+.pgrid.compact .pc.x{background:repeating-linear-gradient(45deg,#cfc9c0 0 2px,#f3f1ee 2px 4px)}
+.pc[data-tw]{cursor:pointer}
+.pc.hl{outline:3px solid var(--amber);outline-offset:-1px;position:relative;z-index:1}
+.plegend{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;font:.78rem var(--sans);color:var(--muted);margin-top:.5rem}
+.plegend .k{display:inline-block;width:.8rem;height:.8rem;vertical-align:-1px;margin-right:.3rem;border:1px solid #8a969e}
+.plegend .k.keep{background:#dcefe6}.plegend .k.twin{background:#eceae6}.plegend .k.x{background:#f3f1ee}.plegend .k.plain{background:#e6f0ec}
+figure.pfig figcaption{font:.95rem/1.55 var(--serif);color:var(--graphite);margin-top:.5rem;max-width:62ch}
+.pgrid.tight{grid-template-columns:auto repeat(var(--cols),2.45rem);gap:2px}
+.pgrid.tight .pc{min-height:1.9rem}.pgrid.tight .pc b{font-size:.62rem;letter-spacing:-.02em}
+.pgrid.tight .ph{font-size:.72rem}
+body{overflow:hidden}
+.app{height:100vh;display:grid;grid-template-rows:auto 1fr}
+.top{display:flex;align-items:center;gap:.6rem;padding:.45rem .9rem;background:var(--sheet);border-bottom:3px solid var(--ink);flex-wrap:wrap}
+.top h1{font:600 1.1rem var(--serif);color:var(--ink);margin:0 .6rem 0 0;white-space:nowrap}
+.top select{font:inherit;padding:.3rem .4rem;border:1px solid var(--ink-soft);background:#fff;max-width:17rem}
+.iconbtn{border:1px solid var(--ink-soft);background:#fff;color:var(--ink);width:32px;height:32px;padding:0;display:inline-grid;place-items:center}
+.iconbtn:disabled{opacity:.35;cursor:default}
+.meta{font:500 .85rem var(--mono);color:var(--muted);padding:0 .3rem}
+#timer{color:var(--ink)}
+.top nav{margin-left:auto;display:flex;gap:1rem;font-size:.9rem}
+.top nav a[aria-current]{font-weight:600;text-decoration-thickness:2px}
+#rail-toggle{display:none}
+.panes{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1fr);min-height:0}
+.pane{min-height:0;overflow:auto}
+/* rail */
+#rail{background:var(--paper);border-right:2px solid var(--red);padding:.6rem .5rem 4.5rem}
+.rail-sec h3{font:600 .82rem var(--sans);color:var(--ink-soft);margin:.9rem .4rem .3rem}
+.rail-sec ol{list-style:none;margin:0;padding:0}
+.rail-sec a{display:flex;gap:.45rem;align-items:baseline;padding:.28rem .4rem;text-decoration:none;color:var(--graphite);font-size:.88rem;border-left:3px solid transparent}
+.rail-sec a[aria-current]{background:var(--sheet);border-left-color:var(--ink);color:var(--ink);font-weight:600}
+.rail-sec .n{font:500 .78rem var(--mono);color:var(--muted);min-width:2.2em}
+.dot{flex:none;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--muted);transform:translateY(1px)}
+a[data-state=progress] .dot{border-color:var(--amber);background:linear-gradient(90deg,var(--amber) 50%,transparent 50%)}
+a[data-state=closed] .dot{border-color:var(--green);background:var(--green)}
+/* middle */
+.mid{background:var(--sheet);border-right:1px solid var(--rule);display:flex;flex-direction:column;min-height:0}
+[role=tablist]{display:flex;gap:0;border-bottom:1px solid var(--rule);padding:0 .8rem;flex:none}
+[role=tab]{border:0;background:none;padding:.6rem .8rem .5rem;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
+[role=tab][aria-selected=true]{color:var(--ink);border-bottom-color:var(--red);font-weight:600}
+.tabpanel{padding:1.1rem 1.4rem 2rem;overflow:auto;flex:1;min-height:0}
+.ptitle,.ctitle{font:600 1.35rem/1.25 var(--serif);color:var(--ink);margin:0 0 .5rem}
+.pnum{font:500 .9rem var(--mono);color:var(--red);margin-right:.6rem;vertical-align:.12em}
+.src{font-size:.82rem;color:var(--muted);margin:-.2rem 0 .6rem}
+.ptext{font:1.08rem/1.6 var(--serif);color:#222c36;max-width:62ch}
+.tabpanel p{max-width:64ch}
+.solution{margin-top:1.4rem;padding:.8rem 1rem;border:1.5px solid var(--green);background:var(--green-soft)}
+.solution h3{margin:0 0 .3rem;font:600 .95rem var(--sans);color:var(--green)}
+.solution .big{font:600 1.35rem var(--serif);color:var(--ink);margin:.2rem 0}
+#worked{border-color:var(--ink-soft);background:#eef2f7}#worked h3{color:var(--ink)}
+.check{font-size:.9rem;color:var(--muted)}
+#steps-list{list-style:none;padding:0;margin:0}
+#steps-list li{padding:.55rem .2rem;border-bottom:1px dashed var(--rule)}
+#steps-list .stat{display:block;font:500 .8rem var(--mono);color:var(--muted);margin-top:.15rem}
+#steps-list li[data-status=first] .stat,#steps-list li[data-status=tries] .stat{color:var(--green)}
+#steps-list li[data-status=given] .stat{color:var(--red)}
+.rules dl{display:grid;grid-template-columns:max-content 1fr;gap:.45rem 1rem;margin:0}
+.rules dt{font-weight:600;color:var(--ink)}.rules dd{margin:0}
+/* right */
+.right{display:flex;flex-direction:column;min-height:0;padding:.8rem 1rem .8rem;gap:.55rem}
+#step-pills{display:flex;gap:.35rem;flex-wrap:wrap}
+.pill{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink-soft);background:#fff;color:var(--ink);font:600 .85rem var(--mono);padding:0}
+.pill[aria-current=step]{box-shadow:0 0 0 3px var(--amber-soft),0 0 0 4.5px var(--amber)}
+.pill[data-status=first]{background:var(--green);border-color:var(--green);color:#fff}
+.pill[data-status=tries]{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.pill[data-status=given]{background:repeating-linear-gradient(135deg,var(--red-soft) 0 4px,#fff 4px 8px);border-color:var(--red);color:var(--red)}
+#step-q{font:1.02rem/1.45 var(--serif);color:#1d2833;margin:0}
+#step-q .sn{display:block;font:600 .78rem var(--sans);color:var(--red);margin-bottom:.15rem}
+#step-q .opts{display:flex;gap:1.2rem;margin-top:.35rem;font-family:var(--sans);font-size:.92rem}
+.edwrap{display:flex;border:1px solid var(--ink-soft);background:#fff;flex:1 1 7rem;min-height:6.5rem}
+#gutter{margin:0;padding:.5rem .4rem;width:2.4rem;text-align:right;font:13px/1.55 var(--mono);color:#9aa6af;background:#f4f6f7;
+  border-right:1px solid var(--rule);overflow:hidden;user-select:none;white-space:pre}
+#editor{flex:1;border:0;resize:none;padding:.5rem .6rem;font:13px/1.55 var(--mono);color:var(--ink);background:
+  linear-gradient(transparent calc(1.55em - 1px),var(--rule-2) 1px) 0 .5rem/100% 1.55em local;outline-offset:-3px}
+.ansrow{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
+.ansrow label{font-weight:600;color:var(--ink);font-size:.9rem}
+#answer{flex:1;min-width:8rem;font:500 1rem var(--mono);padding:.45rem .55rem;border:1.5px solid var(--ink);background:#fff}
+#tries{font:500 .8rem var(--mono);color:var(--muted)}
+.btn{border:1.5px solid var(--ink);background:#fff;color:var(--ink);padding:.42rem .8rem;font-weight:500}
+.btn.primary{background:var(--ink);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.armed{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.btnrow{display:flex;gap:.45rem;flex-wrap:wrap}
+#console{background:var(--console);color:var(--console-ink);font:12.5px/1.5 var(--mono);padding:.6rem .7rem;flex:1 1 8rem;min-height:7rem;overflow:auto}
+#console:empty::before{content:"Attempts and feedback appear here.";color:#6f8290}
+.log{padding:.18rem 0;border-bottom:1px solid #243140}
+.log .tag{color:#7e93a3;margin-right:.3rem}
+.log.ok{color:#9fe0bf}.log.bad{color:#f3b3a9}.log.given{color:#f2cf8a}.log.warn{color:#d9c38f}.log.summary{color:#fff}
+.log .nudge{color:#fff}.log .dim{color:#7e93a3}
+/* hint dialog */
+#hint-dialog{position:fixed;inset:0;background:rgba(22,32,43,.45);display:grid;place-items:center;z-index:100}
+#hint-dialog[hidden]{display:none}
+.dlg{background:var(--sheet);border:2px solid var(--ink);max-width:30rem;width:calc(100% - 2rem);padding:1rem 1.2rem}
+.dlg h2{font:600 1.1rem var(--serif);color:var(--ink);margin:0 0 .5rem}
+.dlg p{font:1rem/1.55 var(--serif);margin:0 0 1rem}
+@media (max-width:900px){
+  body{overflow:auto}.app{height:auto}
+  .panes{grid-template-columns:1fr}
+  #rail-toggle{display:inline-grid}
+  #rail{display:none;border-right:0;border-bottom:2px solid var(--red)}
+  body.rail-open #rail{display:block}
+  .pane{overflow:visible}.tabpanel{overflow:visible}
+  .right{padding-bottom:4.5rem}
+  .top nav{margin-left:0;width:100%}
+}
+</style></head><body><div class="app">
+<header class="top">
+  <button id="rail-toggle" class="iconbtn" type="button" aria-label="Show problem list" aria-expanded="false" aria-controls="rail">☰</button>
+  <h1>Rule of Product: lesson</h1>
+  <label class="sr" for="prob-select" style="position:absolute;left:-9999px">Problem</label>
+  <select id="prob-select" aria-label="Choose a problem"></select>
+  <button id="prev-btn" class="iconbtn" type="button" aria-label="Previous problem">‹</button>
+  <button id="next-btn" class="iconbtn" type="button" aria-label="Next problem">›</button>
+  <span id="done-count" class="meta" aria-live="polite"></span>
+  <span class="meta" aria-label="Time on this problem">⏱ <span id="timer">0:00</span></span>
+  <nav aria-label="Pages"><a href="index.html">Home</a><a href="counting-notes.html">Notes</a><a href="counting-lesson.html" aria-current="page">Lesson</a><a href="counting-practice.html">Practice</a></nav>
+</header>
+<div class="panes">
+  <nav id="rail" class="pane" aria-label="Problems"></nav>
+  <main class="mid pane">
+    <div id="tabs" role="tablist" aria-label="Problem views"><button role="tab" id="t-problem" data-tab="problem" aria-controls="tab-problem">Problem</button><button role="tab" id="t-concept" data-tab="concept" aria-controls="tab-concept">Concept</button><button role="tab" id="t-steps" data-tab="steps" aria-controls="tab-steps">My steps</button></div>
+    <section role="tabpanel" class="tabpanel" id="tab-problem" aria-labelledby="t-problem"><div id="problem-body"></div>
+      <div id="verified" class="solution" hidden aria-live="polite"></div><div id="worked" class="solution" hidden></div></section>
+    <section role="tabpanel" class="tabpanel" id="tab-concept" aria-labelledby="t-concept" hidden><div id="concept-body"></div></section>
+    <section role="tabpanel" class="tabpanel" id="tab-steps" aria-labelledby="t-steps" hidden><ol id="steps-list"></ol></section>
+  </main>
+  <section class="right pane" aria-label="Work area">
+    <div id="step-pills" role="group" aria-label="Steps"></div>
+    <p id="step-q" aria-live="polite"></p>
+    <div class="edwrap"><pre id="gutter" aria-hidden="true"></pre>
+      <textarea id="editor" spellcheck="false" aria-label="Your working for this step"
+        placeholder="Write your method here: what you're choosing and how many options each step has."></textarea></div>
+    <div class="ansrow"><label for="answer">Answer</label><input id="answer" autocomplete="off" inputmode="text">
+      <button id="check-btn" class="btn primary" type="button">Check step</button></div>
+    <div class="btnrow"><button id="hint-btn" class="btn" type="button">Hint for this step</button>
+      <button id="submit-btn" class="btn" type="button">Submit question</button>
+      <button id="worked-btn" class="btn" type="button">Show worked answer</button>
+      <span id="tries" aria-live="polite"></span></div>
+    <div id="console" role="log" aria-label="Feedback console" aria-live="polite"></div>
+  </section>
+</div></div>
+<div id="hint-dialog" role="dialog" aria-modal="true" aria-labelledby="hint-title" hidden><div class="dlg">
+  <h2 id="hint-title">Hint</h2><p id="hint-text"></p><button id="hint-close" class="btn primary" type="button">Got it</button></div></div><div class="pen-ui"><button id="pen-toggle" type="button" aria-pressed="false" aria-label="Pen: draw on the page (P)" title="Pen (P)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14l1-4 8-8 3 3-8 8z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Pen</button><div id="pen-bar" role="toolbar" aria-label="Pen tools" hidden><div class="row"><button type="button" data-tool="pen" aria-pressed="true" aria-label="Pen">Pen</button><button type="button" data-tool="marker" aria-pressed="false" aria-label="Marker">Marker</button><button type="button" data-tool="line" aria-pressed="false" aria-label="Line">Line</button><button type="button" data-tool="box" aria-pressed="false" aria-label="Box">Box</button><button type="button" data-tool="eraser" aria-pressed="false" aria-label="Eraser">Eraser</button></div><div class="row"><button type="button" class="sw" data-color="#1b3358" aria-pressed="true" aria-label="navy ink"><i style="background:#1b3358"></i></button><button type="button" class="sw" data-color="#b8322a" aria-pressed="false" aria-label="red ink"><i style="background:#b8322a"></i></button><button type="button" class="sw" data-color="#2e7d5b" aria-pressed="false" aria-label="green ink"><i style="background:#2e7d5b"></i></button><button type="button" class="sw" data-color="#c98a12" aria-pressed="false" aria-label="amber ink"><i style="background:#c98a12"></i></button><button type="button" class="nib" data-width="fine" aria-pressed="false" aria-label="fine nib"><i style="height:2px"></i></button><button type="button" class="nib" data-width="medium" aria-pressed="true" aria-label="medium nib"><i style="height:4px"></i></button><button type="button" class="nib" data-width="bold" aria-pressed="false" aria-label="bold nib"><i style="height:8px"></i></button></div><div class="row"><button type="button" data-act="undo" aria-label="Undo (Ctrl+Z)">Undo</button><button type="button" data-act="redo" aria-label="Redo (Ctrl+Shift+Z)">Redo</button><button type="button" data-act="clear" aria-label="Clear all ink">Clear</button><button type="button" data-act="export" aria-label="Export ink as PNG">PNG</button><button type="button" data-act="stylus" aria-label="Stylus only: ignore touch" aria-pressed="false">Stylus only</button><button type="button" data-act="close" aria-label="Turn pen off (Esc)">Done</button></div></div><div id="pen-toast" role="status" aria-live="polite"></div></div><canvas id="ink-base" class="ink" aria-hidden="true"></canvas><canvas id="ink-live" class="ink" aria-hidden="true"></canvas><script>/* ---------- Answer checker: tolerant of form, specific about errors ---------- */
+var Check = (function () {
+  var SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+
+  function norm(s) {
+    s = String(s == null ? '' : s).trim().toLowerCase();
+    s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, function (m) {
+      return '^' + m.split('').map(function (c) { return SUP[c]; }).join('');
+    });
+    s = s.replace(/[×·∙⋅∗•]/g, '*').replace(/÷/g, '/').replace(/[−–—]/g, '-');
+    s = s.replace(/(\d|\)|!)\s*x\s*(?=[\d(])/g, '$1*');       // 4 x 3 -> 4*3
+    s = s.replace(/\*\*/g, '^');
+    return s;
+  }
+  function stripThousands(s) {
+    return s.replace(/\d{1,3}(?:,\d{3})+(?![\d,])/g, function (m) { return m.replace(/,/g, ''); });
+  }
+
+  /* recursive-descent evaluator: + - * / ^ ! ( ), implicit multiplication binds tighter than * and / */
+  function evaluate(src) {
+    var s = src.replace(/\s+/g, ' '), i = 0;
+    function peek() { while (s[i] === ' ') i++; return s[i]; }
+    function num() {
+      peek(); var j = i;
+      while (i < s.length && /[\d.]/.test(s[i])) i++;
+      if (j === i) throw new Error('expected number');
+      return parseFloat(s.slice(j, i));
+    }
+    function fact(n) {
+      if (n < 0 || n > 25 || Math.floor(n) !== n) throw new Error('bad factorial');
+      var r = 1; for (var k = 2; k <= n; k++) r *= k; return r;
+    }
+    function primary() {
+      var c = peek();
+      if (c === '(') { i++; var v = expr(); if (peek() !== ')') throw new Error('missing )'); i++; return v; }
+      if (c === '-') { i++; return -primary(); }
+      return num();
+    }
+    function postfix() { var v = primary(); while (peek() === '!') { i++; v = fact(v); } return v; }
+    function power() {
+      var b = postfix();
+      if (peek() === '^') { i++; var e = power(); return Math.pow(b, e); }
+      return b;
+    }
+    function implicit() {
+      var v = power();
+      while (true) { var c = peek(); if (c !== undefined && /[\d(]/.test(c)) v *= power(); else break; }
+      return v;
+    }
+    function term() {
+      var v = implicit();
+      while (true) {
+        var c = peek();
+        if (c === '*') { i++; v *= implicit(); } else if (c === '/') { i++; var d = implicit(); if (d === 0) throw new Error('divide by zero'); v /= d; }
+        else break;
+      }
+      return v;
+    }
+    function expr() {
+      var v = term();
+      while (true) { var c = peek(); if (c === '+') { i++; v += term(); } else if (c === '-') { i++; v -= term(); } else break; }
+      return v;
+    }
+    var v = expr();
+    if (peek() !== undefined) throw new Error('unexpected ' + s[i]);
+    if (!isFinite(v)) throw new Error('not finite');
+    return v;
+  }
+
+  function parseNumber(raw) {
+    var s = stripThousands(norm(raw));
+    if (!s) throw new Error('empty');
+    if (/,/.test(s)) throw new Error('one number please');
+    if (/[^0-9.+\-*/^!() ]/.test(s)) throw new Error('unreadable');
+    return evaluate(s);
+  }
+  function same(a, b) { return Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b)); }
+  function isPrime(n) { if (n < 2 || n !== Math.floor(n)) return false; for (var k = 2; k * k <= n; k++) if (n % k === 0) return false; return true; }
+
+  function named(step, v) {
+    var e = step.errors || {};
+    for (var k in e) if (same(v, Number(k))) return e[k];
+    return null;
+  }
+  function magnitude(v, ans) {
+    var rel = Math.abs(v - ans) / Math.max(1, Math.abs(ans));
+    if (rel < 0.03) return 'Very close. Recheck the arithmetic.';
+    return v > ans ? 'Too big.' : 'Too small.';
+  }
+
+  /* ctx.prev = answers of earlier steps (numbers) so we can say "that's step k's answer" */
+  function grade(step, raw, ctx) {
+    ctx = ctx || {};
+    var t = step.type;
+    if (String(raw || '').trim() === '') return { parseError: true, msg: 'Type an answer in the box first.' };
+
+    if (t === 'num' || t === 'expr') {
+      var v;
+      try { v = parseNumber(raw); } catch (err) {
+        return { parseError: true, msg: err.message === 'one number please'
+          ? 'This step wants a single number.' : "I couldn't read that as a number. Digits, ×, ^ and ! all work." };
+      }
+      if (same(v, step.ans)) return { ok: true, value: v };
+      var m = named(step, v);
+      if (!m && ctx.prev) for (var p = 0; p < ctx.prev.length; p++)
+        if (typeof ctx.prev[p] === 'number' && same(v, ctx.prev[p]) && !same(v, step.ans)) { m = "That's the answer to step " + (p + 1) + '. This step asks something else.'; break; }
+      return { ok: false, value: v, msg: m || magnitude(v, step.ans) };
+    }
+
+    if (t === 'factor') {
+      var s = norm(raw);
+      if (/[+\-/]/.test(s)) return { parseError: true, msg: 'Write it as a product of primes, like 2^3*5.' };
+      var parts = s.split('*').map(function (x) { return x.trim(); }).filter(Boolean), val = 1, composite = false;
+      try {
+        parts.forEach(function (pt) {
+          var b = pt.split('^'), base = evaluate(b[0]), ex = b.length > 1 ? evaluate(b[1]) : 1;
+          if (!isPrime(base)) composite = true;
+          val *= Math.pow(base, ex);
+        });
+      } catch (err) { return { parseError: true, msg: "I couldn't read that product." }; }
+      if (same(val, step.ans) && !composite) return { ok: true, value: val };
+      if (same(val, step.ans)) return { ok: false, value: val, msg: 'The product is right, but some pieces are still composite.' };
+      return { ok: false, value: val, msg: named(step, val) || magnitude(val, step.ans) };
+    }
+
+    if (t === 'nums') {
+      var toks = norm(raw).split(/\s*(?:,|;|&|\band\b)\s*|\s+/).filter(Boolean), got = [];
+      try { toks.forEach(function (x) { got.push(evaluate(x)); }); } catch (err) {
+        return { parseError: true, msg: 'List numbers separated by commas, like 5, 2.' };
+      }
+      var want = step.ans.slice().sort(function (a, b) { return a - b; });
+      var g = got.slice().sort(function (a, b) { return a - b; });
+      if (g.length !== want.length) {
+        var sg = g.reduce(function (a, b) { return a + b; }, 0), sw = want.reduce(function (a, b) { return a + b; }, 0);
+        return { ok: false, value: got, msg: 'You have ' + g.length + (g.length === 1 ? ' value' : ' values') +
+          '; the answer has ' + want.length + '.' + (sg === sw ? ' The total is right, though.' : '') };
+      }
+      var off = 0; for (var k = 0; k < g.length; k++) if (!same(g[k], want[k])) off++;
+      if (off === 0) return { ok: true, value: got };
+      if (off === 1) return { ok: false, value: got, msg: 'Right number of values, but one is off.' };
+      return { ok: false, value: got, msg: 'Right number of values, but ' + off + ' of them are off.' };
+    }
+
+    if (t === 'choice') {
+      var r = norm(raw).replace(/[()\[\].:]/g, '').trim(), opts = step.options || [], idx = -1;
+      if (r === 'y' || r === 'n') for (var o0 = 0; o0 < opts.length; o0++) if (opts[o0].toLowerCase()[0] === r && /^(yes|no)$/i.test(opts[o0])) idx = o0;
+      if (idx < 0 && /^[a-z]$/.test(r)) idx = r.charCodeAt(0) - 97;
+      for (var o = 0; o < opts.length && idx < 0; o++) if (opts[o].toLowerCase() === r) idx = o;
+      if (idx < 0 && (r === 'y' || r === 'n')) for (var o2 = 0; o2 < opts.length; o2++) if (opts[o2].toLowerCase()[0] === r) idx = o2;
+      if (idx < 0 || idx >= opts.length) return { parseError: true, msg: 'Pick one of the options: ' + opts.map(function (x, n) { return String.fromCharCode(65 + n) + ') ' + x; }).join('  ') };
+      var ansIdx = step.ans.charCodeAt(0) - 65;
+      return idx === ansIdx ? { ok: true, value: opts[idx] } : { ok: false, value: opts[idx], msg: 'Not that one.' };
+    }
+
+    if (t === 'text') {
+      var tx = norm(raw);
+      for (var q = 0; q < step.reject.length; q++) if (new RegExp(step.reject[q], 'i').test(tx)) return { ok: false, value: tx, msg: "That's the opposite of what's true here." };
+      for (var a = 0; a < step.accept.length; a++) if (new RegExp(step.accept[a], 'i').test(tx)) return { ok: true, value: tx };
+      return { ok: false, value: tx, msg: "That doesn't match yet." };
+    }
+    return { parseError: true, msg: 'Unknown step type.' };
+  }
+
+  return { grade: grade, parseNumber: parseNumber, norm: norm, evaluate: evaluate };
+})();
+if (typeof module !== 'undefined') module.exports = Check;
+
+window.WB_DATA={"page": "lesson", "sections": [{"name": "Concepts", "items": ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10"]}], "problems": [{"id": "c1", "num": "1.1", "section": "The rule of product", "title": "Outfits", "text": "If you have four shirts, three pairs of pants, and two pairs of shoes in your closet, how many different outfits are possible?", "figure": "", "steps": [{"q": "How many shirt-and-pants combinations are there?", "type": "num", "ans": 12, "nudges": ["Pick one shirt. How many pants could go with it?", "Is that the same for every shirt?", "Multiply the shirts by the pants each one can go with."], "hint": "Each shirt starts its own group of pants choices, and every group is the same size. Count the groups and their size.", "reveal": "12 = 4 × 3.", "success": "Groups of equal size, so multiply.", "errors": {"7": "Adding counts the clothes, not the combinations."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many different outfits are possible?", "type": "num", "ans": 24, "nudges": ["Each shirt-and-pants pair can be finished with which shoes?", "Is that the same for every pair?", "Multiply."], "hint": "Every shirt-and-pants pair gets the same shoe choices. Multiply your step 1 count by those choices.", "reveal": "24 = 4 × 3 × 2. Check: listing every (shirt, pants, shoes) triple gives 24.", "success": "That's the rule of product.", "errors": {"9": "Adding counts the clothes, not the outfits.", "12": "The shoes are a decision too."}, "ph": "whole number", "options": null, "accept": [], "reject": []}], "answer": "24", "check": "Listing all triples gives 24.", "worked": "4 shirts × 3 pants × 2 shoes = 24.", "concepts": ["product"], "above": false, "source": null, "solfig": "", "concept_id": "product"}, {"id": "c2", "num": "1.3", "section": "Restrictions change the options", "title": "Only odd digits", "text": "How many 5-digit numbers are there with only odd digits?", "figure": "", "steps": [{"q": "How many digits can go in the first place?", "type": "num", "ans": 5, "nudges": ["List the odd digits.", "Is any odd digit a leading zero?", "Count the list."], "hint": "Write down the odd digits. Check whether any of them is a problem in the first place.", "reveal": "5: 1, 3, 5, 7, 9.", "success": "None of them is zero, so the first place isn't special this time.", "errors": {"4": "No odd digit is zero, so nothing gets crossed out.", "9": "Only odd digits are allowed."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many 5-digit numbers have only odd digits?", "type": "expr", "ans": 3125, "nudges": ["How many options does each of the other places have?", "Every place has the same list.", "Multiply across the five places."], "hint": "Every place uses the same list of odd digits. Multiply the counts for all five places.", "reveal": "3125 = 5⁵. Check: a brute-force scan of 10,000–99,999 finds 3125.", "success": "5⁵.", "errors": {"2500": "No odd digit is zero, so the first place isn't special here.", "90000": "Only odd digits are allowed.", "25": "There are five places, not two.", "15625": "There are five places, not six."}, "ph": "number or expression", "options": null, "accept": [], "reject": []}], "answer": "3125", "check": "Brute force over 10,000–99,999 finds 3125.", "worked": "Five odd digits at each of five places: 5⁵ = 3125.", "concepts": ["restrict"], "above": false, "source": null, "solfig": "", "concept_id": "restrict"}, {"id": "c3", "num": "2.1", "section": "Decide the most restricted thing first", "title": "Family seating", "text": "(2006 AMC) Mr. and Mrs. Lopez have two children. When they get into their family car, two people sit in the front, and the other two sit in the back. Either Mr. Lopez or Mrs. Lopez must sit in the driver's seat. How many seating arrangements are possible?", "figure": "", "steps": [{"q": "How many people could sit in the driver's seat?", "type": "num", "ans": 2, "nudges": ["Who is allowed to drive?", "Can a child drive?", "Count the parents."], "hint": "Only a parent may drive. Count the people allowed in that seat.", "reveal": "2: Mr. or Mrs. Lopez.", "success": "Restricted seat done first.", "errors": {"4": "The children can't drive.", "1": "Either parent may drive."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many seating arrangements are possible?", "type": "num", "ans": 12, "nudges": ["After the driver sits, how many people are left for the next seat?", "And the seat after that?", "Multiply the choices seat by seat."], "hint": "Once the driver is seated, the other three people fill the other seats in any order. Multiply the driver choices by those.", "reveal": "12 = 2 × 3 × 2 × 1. Check: brute force over all 24 seatings finds 12 with a parent driving.", "success": "Restricted first, then the rest.", "errors": {"24": "Not everyone can drive.", "6": "Either parent could be driving.", "8": "Add or multiply?"}, "ph": "whole number", "options": null, "accept": [], "reject": []}], "answer": "12", "check": "Brute force over 24 seatings finds 12.", "worked": "2 drivers × 3! for the rest = 12.", "concepts": ["first"], "above": false, "source": null, "solfig": "", "concept_id": "first"}, {"id": "c4", "num": "1.4", "section": "Permutations and factorials", "title": "Arrange A, B, C", "text": "How many ways are there to arrange the letters A, B, C in some order?", "figure": "", "steps": [{"q": "How many ways are there to arrange A, B, C?", "type": "num", "ans": 6, "nudges": ["How many letters could go first?", "Then how many are left for the second place?", "Multiply the shrinking choices."], "hint": "Place the letters one position at a time; each placement leaves one fewer letter.", "reveal": "6 = 3!. Check: ABC, ACB, BAC, BCA, CAB, CBA.", "success": "3!.", "errors": {"3": "Each arrangement uses all the letters; count orders, not letters.", "9": "A letter can't be used twice.", "27": "A letter can't be used twice."}, "ph": "whole number", "options": null, "accept": [], "reject": []}], "answer": "6", "check": "Listing gives ABC, ACB, BAC, BCA, CAB, CBA.", "worked": "3 × 2 × 1 = 3! = 6.", "concepts": ["perm"], "above": false, "source": null, "solfig": "", "concept_id": "perm"}, {"id": "c5", "num": "1.5", "section": "Shrinking sets", "title": "Five different digits", "text": "How many 5-digit numbers are there with all distinct (different) digits?", "figure": "", "steps": [{"q": "Once the first two digits are chosen, how many choices are there for the third digit?", "type": "num", "ans": 8, "nudges": ["Could the third digit be zero?", "How many digits are already used?", "Start from all the digits and remove the used ones."], "hint": "The third digit may be zero but must differ from both digits already used.", "reveal": "8: ten digits minus the two used. Check: after 4, 0 the third can be 1, 2, 3, 5, 6, 7, 8 or 9.", "success": "Two used, eight left.", "errors": {"7": "Zero is allowed in the third place.", "9": "It must differ from both of the first two digits.", "10": "It must differ from the digits already used."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many 5-digit numbers have all different digits?", "type": "num", "ans": 27216, "nudges": ["How many options for the third digit?", "Each place loses one more option.", "Multiply the five counts."], "hint": "Each later place has one fewer option than the place before it. Multiply the five counts.", "reveal": "27,216 = 9 × 9 × 8 × 7 × 6. Check: brute force over 10,000–99,999 finds 27,216.", "success": "Shrinking set, special first place.", "errors": {"30240": "That lets zero lead.", "15120": "Zero can go after the first place.", "90000": "That allows repeats."}, "ph": "whole number", "options": null, "accept": [], "reject": []}], "answer": "27,216", "check": "Brute force agrees.", "worked": "9 × 9 × 8 × 7 × 6 = 27,216.", "concepts": ["shrink"], "above": false, "source": null, "solfig": "", "concept_id": "shrink"}, {"id": "c6", "num": "1.6–1.7", "section": "Overcounting and repeated letters", "title": "Repeated A's", "text": "How many ways are there to arrange the letters A, A, B, C in some order? And A, A, A, B, C?", "figure": "", "steps": [{"q": "How many ways are there to arrange A, A, B, C?", "type": "num", "ans": 12, "nudges": ["If you swap the two A's, is it a new arrangement?", "How many times does a count that treats the A's as different list each real arrangement?", "Divide by that."], "hint": "Color the A's blue and red, count arrangements of four different letters, then divide by the number of ways to order the two colored A's.", "reveal": "12 = 4!/2!. Check: brute force lists 12.", "success": "Divide out the pretend.", "errors": {"24": "Swapping the A's gives the same arrangement.", "6": "That divides by too much."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many ways are there to arrange A, A, A, B, C?", "type": "num", "ans": 20, "nudges": ["How many arrangements if the A's were three different colors?", "In how many ways can three colored A's be ordered among themselves?", "Divide."], "hint": "Color the three A's. Every real arrangement shows up once for each ordering of the three colored A's. That ordering count is what you divide by.", "reveal": "20 = 5!/3! = 5 × 4. Check: brute force lists 20.", "success": "5!/3!, or cancel first: 5 × 4.", "errors": {"40": "Divide by the number of orderings of the A's, not the number of A's.", "120": "The A's are identical.", "60": "There are three A's now."}, "ph": "whole number", "options": null, "accept": [], "reject": []}], "answer": "12 and 20", "check": "Brute force lists 12 and 20.", "worked": "4!/2! = 12; 5!/3! = 20.", "concepts": ["overcount"], "above": false, "source": null, "solfig": "", "concept_id": "overcount"}, {"id": "c7", "num": "Board", "section": "Identical groups", "title": "Coins in tubes", "text": "You want to make three stacks of five coins from fifteen distinct coins, and you put the stacks in three tubes. Order within a stack matters. How many ways are there if the tubes are distinct? If the tubes are identical?", "figure": "", "steps": [{"q": "How many ways are there with three distinct tubes? A factorial is fine.", "type": "expr", "ans": 1307674368000, "nudges": ["Imagine filling the tubes one slot at a time. How many coins could go in the first slot?", "And the next slot?", "Is this just an arrangement of all the coins?"], "hint": "Fill tube A bottom to top, then B, then C. Each slot takes one of the coins not yet used.", "reveal": "15! = 1,307,674,368,000.", "success": "An arrangement of fifteen coins.", "errors": {"3628800": "Every coin gets placed, not just ten."}, "ph": "number or expression", "options": null, "accept": [], "reject": []}, {"q": "How many ways are there with three identical tubes?", "type": "expr", "ans": 217945728000, "nudges": ["What can you now swap without changing anything?", "In how many ways can three finished stacks be put into labeled tubes?", "Divide by that."], "hint": "With identical tubes, swapping whole stacks between tubes changes nothing. Divide your step 1 count by the number of ways to order the three stacks.", "reveal": "15!/3! = 217,945,728,000. Check: the same count on a smaller case (6 coins, 3 stacks of 2) brute-forces to 6!/3! = 120.", "success": "Remove the distinction from the groups, not the coins.", "errors": {"126126": "Swapping coins inside a stack changes the stack.", "756756": "Swapping coins inside a stack changes the stack.", "1307674368000": "With identical tubes, some of those look the same."}, "ph": "number or expression", "options": null, "accept": [], "reject": []}], "answer": "15! and 15!/3!", "check": "Scaled brute force (6 coins) gives 720 and 120.", "worked": "Distinct tubes: 15!. Identical tubes: each collection counted 3! times, so 15!/3!.", "concepts": ["groups"], "above": false, "source": null, "solfig": "", "concept_id": "groups"}, {"id": "c8", "num": "2.2", "section": "Same number of choices, different choices", "title": "Good words", "text": "Define a good word as a sequence of letters that consists only of the letters A, B, and C (some of these letters may not appear in the sequence) and in which A is never immediately followed by B, B is never immediately followed by C, and C is never immediately followed by A. How many seven-letter good words are there?", "figure": "", "steps": [{"q": "How many two-letter good words are there?", "type": "num", "ans": 6, "nudges": ["List all two-letter words using A, B, C.", "Cross out AB, BC and CA.", "Count what's left."], "hint": "Write every pair of letters (repeats allowed), then cross out the banned ones.", "reveal": "6: AA, AC, BA, BB, CB, CC.", "success": "Notice: each first letter kept the same number of partners.", "errors": {"9": "Some pairs are banned: AB, BC and CA.", "3": "Repeated letters like AA are allowed."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many seven-letter good words are there?", "type": "expr", "ans": 192, "nudges": ["How many choices for the first letter?", "Is it the same number after B and after C?", "How many letters come after the first?"], "hint": "The first letter is free. Every later letter always has the same number of choices, whatever came before. Multiply.", "reveal": "192 = 3 × 2⁶. Check: brute force over all 3⁷ = 2187 words finds 192.", "success": "Same count, different options: product rule holds.", "errors": {"2187": "That ignores the banned pairs.", "128": "The first letter has three choices.", "384": "There are six letters after the first.", "96": "There are six letters after the first."}, "ph": "number or expression", "options": null, "accept": [], "reject": []}], "answer": "192", "check": "Brute force over 2187 words finds 192.", "worked": "3 × 2⁶ = 192.", "concepts": ["samecount"], "above": false, "source": null, "solfig": "", "concept_id": "samecount"}, {"id": "c9", "num": "2.3", "section": "Removing order to count sets", "title": "Complementary cards", "text": "Every card in a deck shows one shape (circle, square, or triangle) in one of three colors (red, blue, or green), and each color comes in one of three shades (light, medium, or dark). The deck has 27 cards, one for every shape-color-shade combination. A set of three cards is complementary if, for shape, color and shade separately, the three cards are either all the same or all different. How many different complementary three-card sets are there?", "figure": "", "steps": [{"q": "Once two different cards are chosen, how many cards complete a complementary set with them?", "type": "num", "ans": 1, "nudges": ["Take a dark blue square and a dark green triangle. What shape must the third card be?", "What color? What shade?", "How many cards fit all three?"], "hint": "Look at one feature at a time. If the two cards match on it, the third must match too; if they differ, the third must be the value that's left.", "reveal": "1: each feature is forced. The dark blue square and dark green triangle force the dark red circle.", "success": "The first two cards decide the third.", "errors": {"0": "Any two different cards can be completed.", "2": "Each feature is forced to one value.", "3": "Each feature is forced to one value."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many complementary three-card sets are there?", "type": "num", "ans": 117, "nudges": ["How many ways to draw a first card, then a second, then the forced third?", "Does the problem care which card was drawn first?", "How many orders can three cards be drawn in?"], "hint": "Count ordered draws first: any first card, any different second card, then the forced third. A set has no order, so every set was counted once per ordering of its three cards. Divide by that number of orderings.", "reveal": "117 = 27 × 26 ÷ 3! = 702 ÷ 6. Check: brute force over all 2925 three-card sets finds 117.", "success": "Built with order, divided back out.", "errors": {"702": "That counts each set once for every order you could draw it in.", "351": "Three cards can be ordered in more than two ways.", "234": "Divide by the number of orders of three cards, not by 3.", "2925": "That's every three-card set, complementary or not."}, "ph": "whole number", "options": null, "accept": [], "reject": []}], "answer": "117", "check": "Brute force over 2925 sets finds 117.", "worked": "27 × 26 × 1 ordered draws, ÷ 3! = 117.", "concepts": ["order"], "above": false, "source": null, "solfig": "", "concept_id": "order"}, {"id": "c10", "num": "Grid", "section": "Pick grids: when does order matter?", "title": "Captains", "text": "Five friends, Ada, Ben, Cy, Dot and Eli, need leaders for their team. How many ways are there to choose a captain and a vice-captain? How many ways are there to choose two co-captains, who share the same job?", "figure": "", "steps": [{"q": "How many ways are there to choose a captain and a different vice-captain?", "type": "num", "ans": 20, "nudges": ["How many friends could be captain?", "Once the captain is chosen, how many could be vice-captain?", "Is Ada-captain, Ben-vice the same as Ben-captain, Ada-vice?"], "hint": "Build the grid with the captain down the side and the vice-captain across the top. Cross out the boxes where one friend holds both jobs. Different jobs means every remaining box is different.", "reveal": "20 = 5 × 4. Check: listing every (captain, vice) pair gives 20.", "success": "Different jobs: no twins.", "errors": {"25": "One friend can't hold both jobs.", "10": "Captain and vice are different jobs, so swapping gives a new choice.", "9": "Multiply, don't add."}, "ph": "whole number", "options": null, "accept": [], "reject": []}, {"q": "How many ways are there to choose two co-captains?", "type": "num", "ans": 10, "nudges": ["Is Ada-and-Ben the same pair as Ben-and-Ada?", "In your grid, does each box have a twin?", "Remove the double count."], "hint": "Co-captains share one job, so a box and the box across the diagonal from it name the same pair. Divide out that double count.", "reveal": "10 = 5 × 4 ÷ 2. Check: listing every pair of five friends gives 10.", "success": "Same job: twins, so divide by 2.", "errors": {"20": "Ada-and-Ben is the same pair as Ben-and-Ada.", "25": "One friend can't be picked twice.", "5": "Count the pairs, not the friends."}, "ph": "whole number", "options": null, "accept": [], "reject": []}], "answer": "20 and 10", "check": "Listing gives 20 ordered choices and 10 pairs.", "worked": "Captain and vice: 5 × 4 = 20, and no two boxes are the same choice. Co-captains: the same 20 boxes, but each pair appears twice, so 20 ÷ 2 = 10.", "concepts": ["pairs"], "above": false, "source": null, "solfig": "", "concept_id": "pairs"}], "concepts": {"product": ["The rule of product", "<div class=\"eq\" role=\"math\">N = c<sub>1<\/sub> × c<sub>2<\/sub> × ⋯ × c<sub>k<\/sub><\/div>\n<p>Build the thing you are counting as a sequence of decisions, so that every possible thing gets made exactly once.\nIf decision 1 has c<sub>1<\/sub> options, decision 2 has c<sub>2<\/sub> options <em>whatever you chose in decision 1<\/em>, and so on,\nthen the total is the product.<\/p>\n<p>A lunch is one of five sandwiches, one of two drinks and one of three fruits. Each sandwich starts a group of 2 drink choices,\nso 5 × 2 = 10 sandwich-and-drink pairs; each pair starts a group of 3 fruits, so 10 × 3 = 30 lunches. A tree shows the branching,\nbut once you know the branch counts you don't need to draw every leaf.<\/p>\n<p>The options at a step may change depending on earlier choices. Only their <em>number<\/em> has to stay the same.<\/p>"], "restrict": ["Restrictions change the options", "<div class=\"eq\" role=\"math\">9 × 10 × 10 × 10 × 10 = 90,000<\/div>\n<p>A number is a list of digits, so build it digit by digit. The only rule for an ordinary five-digit number is that the first digit\ncan't be zero: 04372 is really the four-digit number 4372. So the first place has 9 options and each other place has 10.<\/p>\n<p>Check it a second way: five-digit numbers run from 10,000 to 99,999, and 99,999 − 10,000 + 1 = 90,000.<\/p>\n<p>A restriction like \"only digits below 4\" changes the list at every place. Two-digit numbers using only 0, 1, 2, 3: the first\nplace is 1, 2 or 3 (3 options), the second is 0, 1, 2 or 3 (4 options), so 3 × 4 = 12. Write the allowed list for each place,\nthen count it.<\/p>"], "first": ["Decide the most restricted thing first", "<div class=\"eq\" role=\"math\">4 × 2<sup>3<\/sup> = 32<\/div>\n<p>You choose the order of your decisions. If one rule is hard to track, settle it before anything else.<\/p>\n<p>Four beads in a row, each red, white or black, with exactly one red bead. Going left to right fails: a later bead has 3 options or 2\ndepending on whether red was already used, so there's no single number to multiply by. Making the first bead red fails too; it misses\nevery row with red somewhere else. Instead decide <em>which<\/em> bead is red first (4 options), then color the rest white or black\n(2 each): 4 × 2 × 2 × 2 = 32.<\/p>\n<p>You can even build a three-digit number right to left: 10 × 10 × 9 gives the same 900.<\/p>"], "perm": ["Permutations and factorials", "<div class=\"eq\" role=\"math\">n! = n × (n − 1) × ⋯ × 2 × 1, &nbsp; 0! = 1<\/div>\n<p>A <strong>permutation<\/strong> is an arrangement, an ordering, of a group of things. For <em>different<\/em> objects the choices shrink\nby one at every position. Five friends in a line: 5 choices for the front, then 4, 3, 2, 1, so 5! = 120 lines.<\/p>\n<p>The friend in second place depends on who went first, but there are always four candidates. Different options, same number of\nthem, so the rule of product works. Try a couple of sample paths to make sure nothing behaves differently.<\/p>\n<p>Zero objects can be arranged in exactly one way: the empty arrangement, like an empty desk. That is why 0! = 1, which also keeps\nn! = n × (n − 1)! true at n = 1.<\/p>"], "shrink": ["Shrinking sets", "<div class=\"eq\" role=\"math\">6 × 5 × 4 × 3 = 360<\/div>\n<p>Four-letter codes from the letters A to F with no letter used twice: 6 options for the first letter, 5 for the second, 4, then 3.\nThat's 360 codes.<\/p>\n<p>Digits work the same way with one twist: the first digit can't be zero, but the second can. Two-digit numbers with different digits:\n9 options first, then 10 − 1 = 9, so 9 × 9 = 81. It looks like a factorial but isn't one: the first place is special, and we stop early.<\/p>"], "overcount": ["Overcounting and repeated letters", "<div class=\"eq\" role=\"math\">arrangements = <span class=\"frac\"><span>n!<\/span><span>m<sub>1<\/sub>! · m<sub>2<\/sub>! ⋯ m<sub>r<\/sub>!<\/span><\/span><\/div>\n<p><strong>Overcounting<\/strong> is counting some or all things more than once. For T, O, O a letter-by-letter tree fails: after T there\nis one kind of letter left, after O there are two, so there's no single multiplier.<\/p>\n<p>Instead pretend the O's are different, a blue O and a red O. Three different letters: 3! = 6 arrangements. Every real word (TOO,\nOTO, OOT) appears exactly twice, blue first or red first, so there are 6 ÷ 2 = 3. Divide only when <em>everything<\/em> is counted the\nsame number of times.<\/p>\n<p>With three identical letters the overcount factor is the number of ways to order three colored copies, 3! = 6, not 3. For B, E, E, E:\n4! ÷ 3! = 24 ÷ 6 = 4 (BEEE, EBEE, EEBE, EEEB). With two repeated groups the orderings combine by the rule of product: A, A, B, B gives\n4! ÷ (2! × 2!) = 6.<\/p>\n<p>Cancel before multiplying: 6!/4! = 6 × 5 = 30.<\/p>"], "groups": ["Identical groups", "<div class=\"eq\" role=\"math\"><span class=\"frac\"><span>8!<\/span><span>2!<\/span><\/span><\/div>\n<p>Eight different books go into two stacks of four, one stack on each of two labeled shelves. Order inside a stack matters, so filling\nthe shelves one slot at a time is just arranging all eight books: 8!.<\/p>\n<p>Now put the stacks into two identical boxes instead. Any finished pair of stacks can be put on labeled shelves in 2! ways, and those\nnow look the same. Divide by 2!. Don't divide by 4! for each stack: swapping books inside a stack still changes the stack.<\/p>"], "samecount": ["Same number of choices, different choices", "<div class=\"eq\" role=\"math\">3 × 2<sup>3<\/sup> = 24<\/div>\n<p>A four-letter sequence of R, G, B where no letter appears twice in a row. After R the next letter is G or B; after G it's R or B.\nThe next letters depend on the last one, but there are always two of them. So 3 × 2 × 2 × 2 = 24. That's all the rule of product\nneeds.<\/p>"], "order": ["Removing order to count sets", "<div class=\"eq\" role=\"math\"><span class=\"frac\"><span>5 × 4 × 3<\/span><span>3!<\/span><\/span> = 10<\/div>\n<p>A <em>set<\/em> has no first, second or third member. Picking a team of three from five kids one at a time gives 5 × 4 × 3 = 60\nordered picks, but each team was picked once for every order of its three members: 3! = 6 times. So there are 60 ÷ 6 = 10 teams.<\/p>\n<p>Build with order, then divide by the number of orders.<\/p>"], "pairs": ["Pick grids: when does order matter?", "<div class=\"eq\" role=\"math\">pairs = <span class=\"frac\"><span>n × (n − 1)<\/span><span>2<\/span><\/span><\/div>\n<p>To count pairs from a group, build a grid. Put the first pick down the side and the second pick across the top. Four people,\nA, B, C, D, make a 4 × 4 grid: 16 boxes, and every box is one way to say \"first I pick this person, then that one.\"<\/p>\n<p>Ask three questions, in order.<\/p>\n<ol><li><b>How many boxes?<\/b> 4 × 4 = 16.<\/li>\n<li><b>Which boxes aren't allowed?<\/b> The diagonal picks the same person twice (A then A). Cross out those 4: 12 left.<\/li>\n<li><b>Are any two boxes the same thing?<\/b> Point at AB, then at BA. If the order doesn't matter, they're the same pair, and every\nteal box has a grey twin across the diagonal. So 12 boxes are really 6 pairs: 12 ÷ 2 = 6.<\/li><\/ol>\n<figure class=\"pfig\" id=\"g4-\"><div class=\"pscroll\"><div class=\"pgrid\" style=\"--cols:4\" role=\"table\" aria-label=\"1st pick by 2nd pick\"><div class=\"ph corner\" role=\"columnheader\"><span>1st pick ↓<\/span><span>2nd pick →<\/span><\/div><div class=\"ph\" role=\"columnheader\">A<\/div><div class=\"ph\" role=\"columnheader\">B<\/div><div class=\"ph\" role=\"columnheader\">C<\/div><div class=\"ph\" role=\"columnheader\">D<\/div><div class=\"ph rh\" role=\"rowheader\">A<\/div><div class=\"pc x\" role=\"cell\" data-k=\"g4-0-0\" aria-label=\"AA not allowed\">×<\/div><div class=\"pc keep\" role=\"cell\" data-k=\"g4-0-1\" data-tw=\"g4-1-0\" aria-label=\"AB counted\" tabindex=0><b>AB<\/b><\/div><div class=\"pc keep\" role=\"cell\" data-k=\"g4-0-2\" data-tw=\"g4-2-0\" aria-label=\"AC counted\" tabindex=0><b>AC<\/b><\/div><div class=\"pc keep\" role=\"cell\" data-k=\"g4-0-3\" data-tw=\"g4-3-0\" aria-label=\"AD counted\" tabindex=0><b>AD<\/b><\/div><div class=\"ph rh\" role=\"rowheader\">B<\/div><div class=\"pc twin\" role=\"cell\" data-k=\"g4-1-0\" data-tw=\"g4-0-1\" aria-label=\"BA same group as its twin\" tabindex=0><b>BA<\/b><\/div><div class=\"pc x\" role=\"cell\" data-k=\"g4-1-1\" aria-label=\"BB not allowed\">×<\/div><div class=\"pc keep\" role=\"cell\" data-k=\"g4-1-2\" data-tw=\"g4-2-1\" aria-label=\"BC counted\" tabindex=0><b>BC<\/b><\/div><div class=\"pc keep\" role=\"cell\" data-k=\"g4-1-3\" data-tw=\"g4-3-1\" aria-label=\"BD counted\" tabindex=0><b>BD<\/b><\/div><div class=\"ph rh\" role=\"rowheader\">C<\/div><div class=\"pc twin\" role=\"cell\" data-k=\"g4-2-0\" data-tw=\"g4-0-2\" aria-label=\"CA same group as its twin\" tabindex=0><b>CA<\/b><\/div><div class=\"pc twin\" role=\"cell\" data-k=\"g4-2-1\" data-tw=\"g4-1-2\" aria-label=\"CB same group as its twin\" tabindex=0><b>CB<\/b><\/div><div class=\"pc x\" role=\"cell\" data-k=\"g4-2-2\" aria-label=\"CC not allowed\">×<\/div><div class=\"pc keep\" role=\"cell\" data-k=\"g4-2-3\" data-tw=\"g4-3-2\" aria-label=\"CD counted\" tabindex=0><b>CD<\/b><\/div><div class=\"ph rh\" role=\"rowheader\">D<\/div><div class=\"pc twin\" role=\"cell\" data-k=\"g4-3-0\" data-tw=\"g4-0-3\" aria-label=\"DA same group as its twin\" tabindex=0><b>DA<\/b><\/div><div class=\"pc twin\" role=\"cell\" data-k=\"g4-3-1\" data-tw=\"g4-1-3\" aria-label=\"DB same group as its twin\" tabindex=0><b>DB<\/b><\/div><div class=\"pc twin\" role=\"cell\" data-k=\"g4-3-2\" data-tw=\"g4-2-3\" aria-label=\"DC same group as its twin\" tabindex=0><b>DC<\/b><\/div><div class=\"pc x\" role=\"cell\" data-k=\"g4-3-3\" aria-label=\"DD not allowed\">×<\/div><\/div><\/div><div class=\"plegend\"><span><i class=\"k keep\"><\/i>counted<\/span><span><i class=\"k twin\"><\/i>twin of a counted box (same group, written backwards)<\/span><span><i class=\"k x\"><\/i>same one picked twice<\/span><span><i class=\"k plain\"><\/i>counted, and has no twin<\/span><\/div><figcaption>16 boxes, 4 crossed out, 12 left. They come in 6 twin pairs, so there are 6 pairs of people.<\/figcaption><\/figure>\n<p>Question 3 is the whole idea. If the answer is no (a home game and an away game, a red card and a black card, a captain and a\nvice-captain) there are no twins and nothing to divide. If the answer is yes (handshakes, teams, hands of cards) divide by 2.<\/p>\n<p>Point at any grey box to light up its twin.<\/p>"]}};
+/* ---------- Workbench: shared by the lesson and practice pages ---------- */
+(function () {
+  var D = window.WB_DATA;
+  function $id(id) { var el = document.getElementById(id); if (!el) throw new Error('missing #' + id); return el; }
+  function $opt(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  /* ---- guarded browser APIs (sandboxed about:srcdoc frames throw on these) ---- */
+  function sandboxed() { try { return location.protocol === 'about:'; } catch (e) { return true; } }
+  function readHash() { if (sandboxed()) return ''; try { return (location.hash || '').replace(/^#/, ''); } catch (e) { return ''; } }
+  function writeHash(h) {
+    if (sandboxed()) return;
+    try { history.replaceState(null, '', '#' + h); } catch (e) { try { location.hash = h; } catch (e2) { /* blocked */ } }
+  }
+
+  var PROBS = D.problems, ORDER = PROBS.map(function (p) { return p.id; }), BY = {};
+  PROBS.forEach(function (p) { BY[p.id] = p; });
+  var ST = {};
+  PROBS.forEach(function (p) {
+    ST[p.id] = { step: 0, time: 0, ink: [], worked: false, verified: false, armed: false,
+      steps: p.steps.map(function () { return { tries: 0, hints: 0, status: 'open', final: false, work: '', answer: '' }; }) };
+  });
+  var cur = null;
+
+  var el = {
+    select: $id('prob-select'), prev: $id('prev-btn'), next: $id('next-btn'), done: $id('done-count'), timer: $id('timer'),
+    rail: $id('rail'), railToggle: $id('rail-toggle'), tabs: $id('tabs'), body: $id('problem-body'),
+    verified: $id('verified'), worked: $id('worked'), stepsList: $id('steps-list'),
+    pills: $id('step-pills'), q: $id('step-q'), tries: $id('tries'), editor: $id('editor'), gutter: $id('gutter'),
+    answer: $id('answer'), check: $id('check-btn'), hint: $id('hint-btn'), submit: $id('submit-btn'), workedBtn: $id('worked-btn'),
+    console: $id('console'), dlg: $id('hint-dialog'), dlgTitle: $id('hint-title'), dlgText: $id('hint-text'), dlgClose: $id('hint-close'),
+    concept: $opt('concept-body')
+  };
+
+  function closed(s) { return s.status !== 'open'; }
+  function probState(id) {
+    var s = ST[id];
+    if (s.steps.every(closed)) return 'closed';
+    if (s.worked || s.steps.some(function (x) { return x.tries || x.hints || x.work; })) return 'progress';
+    return 'untouched';
+  }
+
+  /* ---- navigation chrome ---- */
+  function buildNav() {
+    var html = '', opts = '';
+    D.sections.forEach(function (sec) {
+      html += '<div class="rail-sec"><h3>' + esc(sec.name) + '</h3><ol>';
+      opts += '<optgroup label="' + esc(sec.name) + '">';
+      sec.items.forEach(function (id) {
+        var p = BY[id];
+        html += '<li><a href="#' + id + '" data-go="' + id + '" id="rail-' + id + '"><span class="dot" aria-hidden="true"></span>' +
+          '<span class="n">' + esc(p.num) + '</span> ' + esc(p.title) + '</a></li>';
+        opts += '<option value="' + id + '">' + esc(p.num) + '. ' + esc(p.title) + '</option>';
+      });
+      html += '</ol></div>'; opts += '</optgroup>';
+    });
+    el.rail.innerHTML = html; el.select.innerHTML = opts;
+  }
+  function refreshNav() {
+    var done = 0;
+    ORDER.forEach(function (id) {
+      var st = probState(id), a = document.getElementById('rail-' + id);
+      if (st === 'closed') done++;
+      a.setAttribute('data-state', st);
+      a.setAttribute('aria-label', BY[id].title + ' (' + { untouched: 'not started', progress: 'in progress', closed: 'finished' }[st] + ')');
+      if (id === cur) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+    el.done.textContent = done + ' / ' + ORDER.length + ' finished';
+    var i = ORDER.indexOf(cur); el.prev.disabled = i <= 0; el.next.disabled = i >= ORDER.length - 1;
+  }
+
+  /* ---- console ---- */
+  function log(kind, text) {
+    var line = document.createElement('div'); line.className = 'log ' + kind;
+    var p = BY[cur], s = ST[cur];
+    line.innerHTML = '<span class="tag">' + esc(p.num) + '·' + (s.step + 1) + '</span> ' + text;
+    el.console.appendChild(line); el.console.scrollTop = el.console.scrollHeight;
+  }
+
+  /* ---- rendering ---- */
+  function renderProblem() {
+    var p = BY[cur];
+    el.body.innerHTML = '<h2 class="ptitle"><span class="pnum">' + esc(p.num) + '</span>' + esc(p.title) + '</h2>' +
+      (p.source ? '<p class="src">' + esc(p.source) + '</p>' : '') + '<p class="ptext">' + p.text + '</p>' + (p.figure || '');
+    if (el.concept && D.concepts) {
+      var c = D.concepts[p.concept_id];
+      el.concept.innerHTML = c ? '<h2 class="ctitle">' + esc(c[0]) + '</h2>' + c[1] : '';
+    }
+    renderSolutions();
+  }
+  function renderSolutions() {
+    var p = BY[cur], s = ST[cur];
+    el.verified.hidden = !s.verified;
+    el.verified.innerHTML = s.verified ? '<h3>Verified answer</h3><p class="big">' + esc(p.answer) + '</p><p>' + esc(p.check) + '</p>' + (p.solfig || '') : '';
+    el.worked.hidden = !s.worked;
+    el.worked.innerHTML = s.worked ? '<h3>Worked answer</h3><p>' + esc(p.worked) + '</p><p class="check">Check: ' + esc(p.check) + '</p>' + (s.verified ? '' : (p.solfig || '')) : '';
+  }
+  function statusText(x) {
+    if (x.status === 'first') return 'right first try';
+    if (x.status === 'tries') return 'right after ' + x.tries + ' tries';
+    if (x.status === 'given') return 'answer given';
+    return x.tries ? 'in progress, ' + x.tries + (x.tries === 1 ? ' try' : ' tries') : 'not tried';
+  }
+  function renderSteps() {
+    var p = BY[cur], s = ST[cur];
+    el.pills.innerHTML = p.steps.map(function (st, i) {
+      var x = s.steps[i];
+      return '<button type="button" class="pill" data-step="' + i + '" data-status="' + x.status + '"' +
+        (i === s.step ? ' aria-current="step"' : '') + ' aria-label="Step ' + (i + 1) + ', ' + statusText(x) + '">' + (i + 1) + '</button>';
+    }).join('');
+    var st = p.steps[s.step], x = s.steps[s.step];
+    el.q.innerHTML = '<span class="sn">Step ' + (s.step + 1) + ' of ' + p.steps.length + '</span>' + esc(st.q) +
+      (st.options ? '<span class="opts">' + st.options.map(function (o, n) { return '<span>' + String.fromCharCode(65 + n) + ') ' + esc(o) + '</span>'; }).join('') + '</span>' : '');
+    el.answer.placeholder = st.ph;
+    el.answer.value = x.answer;
+    el.editor.value = x.work;
+    gutter();
+    var lock = closed(x);
+    el.answer.disabled = lock; el.check.disabled = lock;
+    el.tries.textContent = lock ? statusText(x) + (x.hints ? ' · hint used' : '')
+      : (x.final ? 'Final attempt' : 'Tries ' + x.tries + ' of 3') + (x.hints ? ' · hint used' : '');
+    el.stepsList.innerHTML = p.steps.map(function (st2, i) {
+      var y = s.steps[i];
+      return '<li data-status="' + y.status + '"><b>Step ' + (i + 1) + '</b> ' + esc(st2.q) + '<span class="stat">' + statusText(y) +
+        (y.hints ? ', hint used' : '') + '</span></li>';
+    }).join('');
+    el.workedBtn.textContent = s.armed ? 'Some steps are untried. Click again to show' : 'Show worked answer';
+    el.workedBtn.classList.toggle('armed', s.armed);
+  }
+  function gutter() {
+    var n = Math.max(6, el.editor.value.split('\n').length), out = '';
+    for (var i = 1; i <= n; i++) out += i + '\n';
+    el.gutter.textContent = out; el.gutter.scrollTop = el.editor.scrollTop;
+  }
+  function renderAll() { renderProblem(); renderSteps(); refreshNav(); }
+
+  function go(id, opts) {
+    if (!BY[id]) id = ORDER[0];
+    if (cur && window.INK) ST[cur].ink = window.INK.get();          /* park this problem's ink */
+    if (cur) saveInputs();
+    cur = id;
+    if (window.INK) window.INK.set(ST[id].ink);                      /* restore that problem's ink */
+    el.select.value = id;
+    renderAll(); tick(true);
+    if (!(opts && opts.noHash)) writeHash(id);
+    document.body.classList.remove('rail-open');
+  }
+  function saveInputs() { var x = ST[cur].steps[ST[cur].step]; x.work = el.editor.value; if (!closed(x)) x.answer = el.answer.value; }
+
+  /* ---- the grading loop ---- */
+  function nextOpen(s, from) {
+    for (var i = from + 1; i < s.steps.length; i++) if (!closed(s.steps[i])) return i;
+    for (var j = 0; j < s.steps.length; j++) if (!closed(s.steps[j])) return j;
+    return -1;
+  }
+  function checkStep() {
+    var p = BY[cur], s = ST[cur], i = s.step, st = p.steps[i], x = s.steps[i];
+    saveInputs();
+    if (closed(x)) { log('info', 'This step is already closed.'); return; }
+    var prev = p.steps.slice(0, i).map(function (q) { return typeof q.ans === 'number' ? q.ans : null; });
+    var r = Check.grade(st, el.answer.value, { prev: prev });
+    if (r.parseError) { log('warn', esc(r.msg) + ' <span class="dim">(no try used)</span>'); return; }
+    x.tries++;
+    var shown = esc(el.answer.value.trim());
+    if (r.ok) {
+      x.status = x.tries === 1 ? 'first' : 'tries';
+      log('ok', 'Try ' + x.tries + ': <b>' + shown + '</b>, correct. ' + esc(st.success));
+      advance(s, i);
+    } else if (!x.final && x.tries < 3) {
+      log('bad', 'Try ' + x.tries + ': <b>' + shown + '</b>. ' + esc(r.msg) + ' <span class="nudge">' + esc(st.nudges[x.tries - 1]) + '</span>');
+    } else if (!x.final) {
+      x.final = true;
+      log('bad', 'Try ' + x.tries + ': <b>' + shown + '</b>. ' + esc(r.msg) + ' <span class="nudge">' + esc(st.nudges[2]) + '</span> One final attempt on this step.');
+    } else {
+      x.status = 'given'; x.answer = '';
+      log('given', 'Final attempt: <b>' + shown + '</b>. Here is this step: ' + esc(st.reveal));
+      var n = nextOpen(s, i);
+      if (n >= 0) log('info', 'On to step ' + (n + 1) + '. That one is yours to work out.');
+      advance(s, i);
+    }
+    renderSteps(); refreshNav();
+  }
+  function advance(s, i) {
+    var n = nextOpen(s, i);
+    if (n >= 0) { s.step = n; }
+    else log('info', 'Every step is closed. Press Submit question for the summary and the verified answer.');
+  }
+  function submit() {
+    var p = BY[cur], s = ST[cur]; saveInputs();
+    var lines = p.steps.map(function (st, i) { var x = s.steps[i]; return 'Step ' + (i + 1) + ': ' + statusText(x) + (x.hints ? ' (hint used)' : ''); });
+    var open = s.steps.map(function (x, i) { return closed(x) ? null : i + 1; }).filter(Boolean);
+    log('summary', lines.map(esc).join('<br>'));
+    if (open.length) log('info', (open.length === 1 ? 'Step ' + open[0] + ' is' : 'Steps ' + open.join(', ') + ' are') + ' still open. Finish them to unlock the verified answer.');
+    else { s.verified = true; renderSolutions(); log('ok', 'Verified answer unlocked: ' + esc(p.answer)); showTab('problem'); }
+    refreshNav();
+  }
+  function showWorked() {
+    var s = ST[cur];
+    var untried = s.steps.some(function (x) { return !closed(x) && x.tries === 0; });
+    if (untried && !s.armed) { s.armed = true; renderSteps(); setTimeout(function () { if (s.armed) { s.armed = false; if (ST[cur] === s) renderSteps(); } }, 5000); return; }
+    s.armed = false; s.worked = true; renderSolutions(); renderSteps(); refreshNav(); showTab('problem');
+    log('info', 'Worked answer shown.');
+  }
+
+  /* ---- hint dialog ---- */
+  var lastFocus = null;
+  function openHint() {
+    var p = BY[cur], s = ST[cur], x = s.steps[s.step];
+    x.hints++; saveInputs();
+    el.dlgTitle.textContent = 'Hint for step ' + (s.step + 1);
+    el.dlgText.textContent = p.steps[s.step].hint;
+    lastFocus = document.activeElement;
+    el.dlg.hidden = false; document.body.classList.add('dialog-open'); el.dlgClose.focus();
+    log('info', 'Hint opened. It does not use a try.');
+    renderSteps();
+  }
+  function closeHint() { el.dlg.hidden = true; document.body.classList.remove('dialog-open'); if (lastFocus) try { lastFocus.focus(); } catch (e) {} }
+
+  /* ---- tabs ---- */
+  function showTab(name) {
+    el.tabs.querySelectorAll('[role=tab]').forEach(function (t) {
+      var on = t.dataset.tab === name; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1;
+      document.getElementById('tab-' + t.dataset.tab).hidden = !on;
+    });
+  }
+
+  /* ---- timer ---- */
+  function fmt(t) { var m = Math.floor(t / 60), s = t % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+  function tick(noInc) {
+    var s = ST[cur]; if (!s) return;
+    if (!noInc && probState(cur) !== 'closed' && !document.hidden) s.time++;
+    el.timer.textContent = fmt(s.time);
+  }
+  setInterval(tick, 1000);
+
+  /* ---- wiring ---- */
+  el.select.addEventListener('change', function () { go(el.select.value); });
+  el.prev.addEventListener('click', function () { var i = ORDER.indexOf(cur); if (i > 0) go(ORDER[i - 1]); });
+  el.next.addEventListener('click', function () { var i = ORDER.indexOf(cur); if (i < ORDER.length - 1) go(ORDER[i + 1]); });
+  el.rail.addEventListener('click', function (e) { var a = e.target.closest('[data-go]'); if (a) { e.preventDefault(); go(a.dataset.go); } });
+  el.railToggle.addEventListener('click', function () {
+    var open = document.body.classList.toggle('rail-open'); el.railToggle.setAttribute('aria-expanded', String(open));
+  });
+  el.pills.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-step]'); if (!b) return; saveInputs(); ST[cur].step = +b.dataset.step; renderSteps();
+  });
+  el.tabs.addEventListener('click', function (e) { var t = e.target.closest('[role=tab]'); if (t) showTab(t.dataset.tab); });
+  el.tabs.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var ts = [].slice.call(el.tabs.querySelectorAll('[role=tab]')), i = ts.indexOf(document.activeElement);
+    var n = ts[(i + (e.key === 'ArrowRight' ? 1 : ts.length - 1)) % ts.length]; n.focus(); showTab(n.dataset.tab);
+  });
+  el.check.addEventListener('click', checkStep);
+  el.hint.addEventListener('click', openHint);
+  el.submit.addEventListener('click', submit);
+  el.workedBtn.addEventListener('click', showWorked);
+  el.dlgClose.addEventListener('click', closeHint);
+  el.dlg.addEventListener('click', function (e) { if (e.target === el.dlg) closeHint(); });
+  el.answer.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); checkStep(); } });
+  el.editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); checkStep(); } });
+  el.editor.addEventListener('input', function () { ST[cur].steps[ST[cur].step].work = el.editor.value; gutter(); refreshNav(); });
+  el.editor.addEventListener('scroll', function () { el.gutter.scrollTop = el.editor.scrollTop; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !el.dlg.hidden) { e.preventDefault(); closeHint(); } }, true);
+  window.addEventListener('hashchange', function () { var h = readHash(); if (h && BY[h] && h !== cur) go(h, { noHash: true }); });
+
+  buildNav();
+  showTab(D.page === 'lesson' ? 'concept' : 'problem');
+  var h = readHash();
+  go(BY[h] ? h : ORDER[0], { noHash: !BY[h] });
+
+  window.WB = { go: go, state: ST, current: function () { return cur; }, order: ORDER, data: D, showTab: showTab };
+})();
+
+/* ---------- Teaching pen ----------
+   Two viewport-sized canvases: #ink-base holds finished strokes and is never touched while a stroke is in
+   progress; #ink-live holds only the stroke being drawn, and only new segments are appended each frame.
+   Anchoring: data-pen-mode="page" stores points in document coordinates and re-renders the base layer with a
+   translate on scroll; "viewport" stores viewport coordinates and swallows scrolling while the pen is on. */
+(function () {
+  var root = document.documentElement;
+  var MODE = root.getAttribute('data-pen-mode') === 'viewport' ? 'viewport' : 'page';
+  var DPR = Math.min(2, window.devicePixelRatio || 1);
+  var WIDTHS = { fine: 1.6, medium: 3.2, bold: 6.5 };
+  function $id(id) { return document.getElementById(id); }
+
+  var base = $id('ink-base'), live = $id('ink-live'), bar = $id('pen-bar'), btn = $id('pen-toggle'), toast = $id('pen-toast');
+  var bctx = base.getContext('2d'), lctx = live.getContext('2d');
+
+  var S = { on: false, tool: 'pen', color: '#1b3358', width: 'medium', stylusOnly: false };
+  var strokes = [], undoStack = [], redoStack = [];
+  var cur = null, pending = false, eraseBefore = null, vw = 0, vh = 0;
+  var stats = { framesWhileDrawing: 0, oldStrokesRedrawnWhileDrawing: 0, baseRenders: 0, commits: 0,
+                touchIgnored: 0, segmentsDrawn: 0, lastExportBytes: 0 };
+
+  function offset() { return MODE === 'page' ? { x: window.scrollX || 0, y: window.scrollY || 0 } : { x: 0, y: 0 }; }
+  function toLocal(e) { var o = offset(); return { x: e.clientX + o.x, y: e.clientY + o.y }; }
+
+  function resize() {
+    vw = window.innerWidth; vh = window.innerHeight;
+    [base, live].forEach(function (c) {
+      c.width = Math.round(vw * DPR); c.height = Math.round(vh * DPR);
+      c.style.width = vw + 'px'; c.style.height = vh + 'px';
+    });
+    renderBase();
+  }
+
+  function setupCtx(ctx) {
+    var o = offset();
+    ctx.setTransform(DPR, 0, 0, DPR, -o.x * DPR, -o.y * DPR);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  }
+
+  function bbox(s) {
+    if (s.bb) return s.bb;
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    s.pts.forEach(function (p) { if (p.x < x0) x0 = p.x; if (p.y < y0) y0 = p.y; if (p.x > x1) x1 = p.x; if (p.y > y1) y1 = p.y; });
+    var pad = (s.w || 3) * 2 + 2;
+    return (s.bb = { x0: x0 - pad, y0: y0 - pad, x1: x1 + pad, y1: y1 + pad });
+  }
+  function visible(s) {
+    var b = bbox(s), o = offset();
+    return b.x1 >= o.x && b.x0 <= o.x + vw && b.y1 >= o.y && b.y0 <= o.y + vh;
+  }
+
+  function mid(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
+
+  /* one smoothed segment k: from mid(k-1,k) to mid(k,k+1), control point k; tapered pen width */
+  function segment(ctx, p, k) {
+    var a = k === 0 ? p[0] : mid(p[k - 1], p[k]), b = mid(p[k], p[k + 1]);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.quadraticCurveTo(p[k].x, p[k].y, b.x, b.y);
+    ctx.lineWidth = p[k].w; ctx.stroke(); stats.segmentsDrawn++;
+  }
+  function tail(ctx, p) {
+    var n = p.length; if (n < 2) return;
+    var a = mid(p[n - 2], p[n - 1]);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(p[n - 1].x, p[n - 1].y); ctx.lineWidth = p[n - 1].w; ctx.stroke();
+  }
+  function dot(ctx, s) { var p = s.pts[0]; ctx.beginPath(); ctx.arc(p.x, p.y, s.w / 2, 0, Math.PI * 2); ctx.fillStyle = s.color; ctx.fill(); }
+
+  function drawStroke(ctx, s) {
+    ctx.save();
+    ctx.strokeStyle = s.color;
+    var p = s.pts;
+    if (s.tool === 'box') {
+      ctx.lineWidth = s.w; ctx.strokeRect(Math.min(p[0].x, p[1].x), Math.min(p[0].y, p[1].y), Math.abs(p[1].x - p[0].x), Math.abs(p[1].y - p[0].y));
+    } else if (s.tool === 'line' || s.straight) {
+      if (s.tool === 'marker') ctx.globalAlpha = 0.35;
+      ctx.lineWidth = s.w; ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y); ctx.lineTo(p[p.length - 1].x, p[p.length - 1].y); ctx.stroke();
+    } else if (p.length === 1) {
+      if (s.tool === 'marker') ctx.globalAlpha = 0.35;
+      dot(ctx, s);
+    } else if (s.tool === 'marker') {
+      /* one path, one stroke(), so overlaps inside the stroke don't darken */
+      ctx.globalAlpha = 0.35; ctx.lineWidth = s.w; ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y);
+      for (var k = 1; k < p.length - 1; k++) { var m = mid(p[k], p[k + 1]); ctx.quadraticCurveTo(p[k].x, p[k].y, m.x, m.y); }
+      ctx.lineTo(p[p.length - 1].x, p[p.length - 1].y); ctx.stroke();
+    } else {
+      for (var j = 0; j < p.length - 1; j++) segment(ctx, p, j);
+      tail(ctx, p);
+    }
+    ctx.restore();
+  }
+
+  function renderBase() {
+    stats.baseRenders++;
+    bctx.setTransform(1, 0, 0, 1, 0, 0); bctx.clearRect(0, 0, base.width, base.height);
+    setupCtx(bctx);
+    for (var i = 0; i < strokes.length; i++) if (visible(strokes[i])) {
+      drawStroke(bctx, strokes[i]);
+      if (cur) stats.oldStrokesRedrawnWhileDrawing++;
+    }
+  }
+  function clearLive() { lctx.setTransform(1, 0, 0, 1, 0, 0); lctx.clearRect(0, 0, live.width, live.height); }
+
+  /* ---- per-frame flush: cost proportional to new points only ---- */
+  function schedule() { if (!pending) { pending = true; requestAnimationFrame(flush); } }
+  function flush() {
+    pending = false;
+    if (!cur) return;
+    stats.framesWhileDrawing++;
+    setupCtx(lctx);
+    lctx.strokeStyle = cur.color;
+    var p = cur.pts;
+    if (cur.tool === 'line' || cur.tool === 'box' || cur.straight) {
+      clearLive(); setupCtx(lctx);                 /* preview shape: constant cost */
+      var shape = { tool: cur.tool, color: cur.color, w: cur.w, straight: cur.straight, pts: [p[0], p[p.length - 1]] };
+      if (cur.tool === 'marker') { lctx.save(); drawStroke(lctx, { tool: 'line', color: cur.color, w: cur.w, pts: shape.pts }); lctx.restore(); }
+      else drawStroke(lctx, shape);
+      return;
+    }
+    if (cur.tool === 'marker') lctx.lineWidth = cur.w;
+    while (cur.drawn < p.length - 1) {
+      var k = cur.drawn;
+      if (cur.tool === 'marker') {
+        var a = k === 0 ? p[0] : mid(p[k - 1], p[k]), b = mid(p[k], p[k + 1]);
+        lctx.beginPath(); lctx.moveTo(a.x, a.y); lctx.quadraticCurveTo(p[k].x, p[k].y, b.x, b.y); lctx.stroke(); stats.segmentsDrawn++;
+      } else segment(lctx, p, k);
+      cur.drawn++;
+    }
+  }
+
+  function snapshot() { undoStack.push(strokes.slice()); if (undoStack.length > 200) undoStack.shift(); redoStack.length = 0; }
+
+  function commit() {
+    var s = cur; cur = null;
+    if (s.tool === 'line' || s.tool === 'box' || s.straight) s.pts = [s.pts[0], s.pts[s.pts.length - 1]];
+    delete s.drawn;
+    snapshot(); strokes.push(s); stats.commits++;
+    setupCtx(bctx); drawStroke(bctx, s);          /* drawn once onto the committed layer */
+    clearLive(); live.style.opacity = '';
+  }
+
+  /* ---- eraser: removes whole strokes near the pointer ---- */
+  function distSeg(p, a, b) {
+    var dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy, t = L ? ((p.x - a.x) * dx + (p.y - a.y) * dy) / L : 0;
+    t = Math.max(0, Math.min(1, t)); var x = a.x + t * dx - p.x, y = a.y + t * dy - p.y; return Math.sqrt(x * x + y * y);
+  }
+  function hits(s, q, r) {
+    var b = bbox(s); if (q.x < b.x0 - r || q.x > b.x1 + r || q.y < b.y0 - r || q.y > b.y1 + r) return false;
+    var p = s.pts;
+    if (s.tool === 'box') {
+      var c = [p[0], { x: p[1].x, y: p[0].y }, p[1], { x: p[0].x, y: p[1].y }];
+      for (var i = 0; i < 4; i++) if (distSeg(q, c[i], c[(i + 1) % 4]) < r + s.w / 2) return true;
+      return false;
+    }
+    if (p.length === 1) return Math.hypot(q.x - p[0].x, q.y - p[0].y) < r + s.w / 2;
+    for (var j = 0; j < p.length - 1; j++) if (distSeg(q, p[j], p[j + 1]) < r + s.w / 2) return true;
+    return false;
+  }
+  function eraseAt(q) {
+    var before = strokes.length;
+    strokes = strokes.filter(function (s) { return !hits(s, q, 10); });
+    if (strokes.length !== before) renderBase();
+  }
+
+  /* ---- pointer handling ---- */
+  function onDown(e) {
+    if (!S.on) return;
+    if (e.pointerType === 'touch' && (S.stylusOnly || MODE === 'page')) { stats.touchIgnored++; return; }
+    if (e.button !== undefined && e.button > 0) return;
+    e.preventDefault();
+    try { live.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
+    var q = toLocal(e);
+    if (S.tool === 'eraser') { eraseBefore = strokes.slice(); cur = { tool: 'eraser', pts: [q] }; eraseAt(q); return; }
+    var w = WIDTHS[S.width] * (S.tool === 'marker' ? 4 : 1);
+    q.w = w; q.t = e.timeStamp || 0;
+    cur = { tool: S.tool, color: S.color, w: w, pts: [q], drawn: 0, straight: false };
+    if (S.tool === 'marker') live.style.opacity = '0.35';
+    schedule();
+  }
+  function onMove(e) {
+    if (!cur) return;
+    var evs = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
+    if (!evs.length) evs = [e];
+    if (cur.tool === 'eraser') { for (var i = 0; i < evs.length; i++) eraseAt(toLocal(evs[i])); return; }
+    if ((cur.tool === 'pen' || cur.tool === 'marker') && e.shiftKey) cur.straight = true;
+    for (var j = 0; j < evs.length; j++) {
+      var q = toLocal(evs[j]), last = cur.pts[cur.pts.length - 1];
+      var d = Math.hypot(q.x - last.x, q.y - last.y); if (d < 0.6) continue;
+      q.t = evs[j].timeStamp || last.t + 8;
+      if (cur.tool === 'pen') {
+        var dt = Math.max(1, q.t - last.t), v = d / dt;
+        var target = cur.w * Math.max(0.45, Math.min(1.25, 1.25 - 0.32 * v));
+        q.w = last.w * 0.72 + target * 0.28;
+      } else q.w = cur.w;
+      cur.pts.push(q);
+    }
+    schedule();
+  }
+  function onUp() {
+    if (!cur) return;
+    if (cur.tool === 'eraser') {
+      cur = null;
+      if (eraseBefore && eraseBefore.length !== strokes.length) { undoStack.push(eraseBefore); redoStack.length = 0; }
+      eraseBefore = null; return;
+    }
+    flush(); commit();
+  }
+
+  live.addEventListener('pointerdown', onDown);
+  live.addEventListener('pointermove', onMove);
+  live.addEventListener('pointerup', onUp);
+  live.addEventListener('pointercancel', onUp);
+  live.addEventListener('wheel', function (e) { if (S.on && MODE === 'viewport') e.preventDefault(); }, { passive: false });
+
+  var scrollQueued = false;
+  window.addEventListener('scroll', function () {
+    if (MODE !== 'page' || scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(function () { scrollQueued = false; renderBase(); });
+  }, { passive: true });
+  window.addEventListener('resize', resize);
+
+  /* ---- UI ---- */
+  function say(msg) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(say.t); say.t = setTimeout(function () { toast.classList.remove('show'); }, 2200); }
+  function setOn(v) {
+    S.on = v; root.classList.toggle('pen-on', v);
+    btn.setAttribute('aria-pressed', String(v)); bar.hidden = !v;
+    live.style.pointerEvents = v ? 'auto' : 'none';
+    live.style.touchAction = MODE === 'viewport' ? 'none' : 'pan-x pan-y pinch-zoom';
+    if (!v && cur) onUp();
+  }
+  function undo() { if (!undoStack.length) return; redoStack.push(strokes); strokes = undoStack.pop(); renderBase(); }
+  function redo() { if (!redoStack.length) return; undoStack.push(strokes); strokes = redoStack.pop(); renderBase(); }
+  function clearAll() { if (!strokes.length) return; snapshot(); strokes = []; renderBase(); say('Cleared. Undo brings it back.'); }
+
+  function exportPNG(done) {
+    if (!strokes.length) { say('Nothing to export yet.'); if (done) done(null); return; }
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    strokes.forEach(function (s) { var b = bbox(s); x0 = Math.min(x0, b.x0); y0 = Math.min(y0, b.y0); x1 = Math.max(x1, b.x1); y1 = Math.max(y1, b.y1); });
+    var w = Math.min(4096, Math.ceil(x1 - x0) + 20), h = Math.min(4096, Math.ceil(y1 - y0) + 20);
+    var c = document.createElement('canvas'); c.width = w * DPR; c.height = h * DPR;
+    var x = c.getContext('2d'); x.setTransform(DPR, 0, 0, DPR, (-x0 + 10) * DPR, (-y0 + 10) * DPR); x.lineCap = 'round'; x.lineJoin = 'round';
+    strokes.forEach(function (s) { drawStroke(x, s); });
+    try {
+      c.toBlob(function (blob) {
+        stats.lastExportBytes = blob ? blob.size : 0;
+        try {
+          var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ink.png';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          say('Exported ink.png (the ink only, not the page).');
+        } catch (err) { say('This frame blocks downloads.'); }
+        if (done) done(blob);
+      }, 'image/png');
+    } catch (err) { say('Export is blocked here.'); if (done) done(null); }
+  }
+
+  btn.addEventListener('click', function () { setOn(!S.on); });
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.tool) { S.tool = b.dataset.tool; mark('[data-tool]', b); }
+    if (b.dataset.color) { S.color = b.dataset.color; mark('[data-color]', b); }
+    if (b.dataset.width) { S.width = b.dataset.width; mark('[data-width]', b); }
+    var act = b.dataset.act;
+    if (act === 'undo') undo(); else if (act === 'redo') redo(); else if (act === 'clear') clearAll();
+    else if (act === 'export') exportPNG(); else if (act === 'close') setOn(false);
+    else if (act === 'stylus') { S.stylusOnly = !S.stylusOnly; b.setAttribute('aria-pressed', String(S.stylusOnly)); say(S.stylusOnly ? 'Stylus only: touches are ignored.' : 'Touch drawing allowed.'); }
+  });
+  function mark(sel, b) { bar.querySelectorAll(sel).forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); }
+
+  function typing(t) { return t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.isContentEditable); }
+  document.addEventListener('keydown', function (e) {
+    if (typing(e.target)) return;
+    var mod = e.ctrlKey || e.metaKey;
+    if (!mod && !e.altKey && (e.key === 'p' || e.key === 'P')) { e.preventDefault(); setOn(!S.on); return; }
+    if (e.key === 'Escape' && S.on && !document.body.classList.contains('dialog-open')) { setOn(false); return; }
+    if (S.on && mod && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+    if (S.on && mod && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); }
+  });
+
+  resize();
+  window.INK = {
+    mode: MODE,
+    get: function () { return strokes.slice(); },
+    set: function (arr) { if (cur) onUp(); strokes = arr ? arr.slice() : []; undoStack = []; redoStack = []; renderBase(); },
+    on: function () { setOn(true); }, off: function () { setOn(false); }, isOn: function () { return S.on; },
+    undo: undo, redo: redo, clear: clearAll, exportPNG: exportPNG, stats: stats,
+    megapixels: function () { return (base.width * base.height + live.width * live.height) / 1e6; },
+    resetStats: function () { for (var k in stats) stats[k] = 0; }
+  };
+})();
+
+/* ---------- pick grid: pointing at a box lights up its twin ---------- */
+(function () {
+  function pair(el) {
+    if (!el || !el.dataset || !el.dataset.tw) return [];
+    var tw = document.querySelector('[data-k="' + el.dataset.tw + '"]');
+    return tw ? [el, tw] : [el];
+  }
+  var lit = [];
+  function light(el) { lit.forEach(function (x) { x.classList.remove('hl'); }); lit = pair(el); lit.forEach(function (x) { x.classList.add('hl'); }); }
+  document.addEventListener('mouseover', function (e) { var c = e.target.closest && e.target.closest('.pc[data-tw]'); if (c) light(c); });
+  document.addEventListener('focusin', function (e) { var c = e.target.closest && e.target.closest('.pc[data-tw]'); if (c) light(c); });
+  document.addEventListener('click', function (e) { var c = e.target.closest && e.target.closest('.pc[data-tw]'); if (c) light(c); });
+})();
+</script></body></html>
