@@ -72,7 +72,112 @@ figure.pfig figcaption{font:.95rem/1.55 var(--serif);color:var(--graphite);margi
 .pgrid.tight{grid-template-columns:auto repeat(var(--cols),2.45rem);gap:2px}
 .pgrid.tight .pc{min-height:1.9rem}.pgrid.tight .pc b{font-size:.62rem;letter-spacing:-.02em}
 .pgrid.tight .ph{font-size:.72rem}
-.notes{display:grid;grid-template-columns:15rem minmax(0,46rem);gap:2.5rem;max-width:66rem;margin:0 auto;padding:1.5rem 1.2rem 6rem}
+/* ---- step-by-step stories ---- */
+.story{border:1.5px solid var(--ink);background:#fff;margin:1.2rem 0;max-width:100%}
+.story .shead{font:600 1rem var(--serif);color:#fff;background:var(--ink);padding:.45rem .8rem}
+.story.worked .shead{background:var(--green)}
+.story.plan .shead{background:var(--red)}
+.frames{padding:.8rem 1rem .4rem}
+.frame{display:none}.frame.on{display:block}
+.story.all .frame{display:block;border-bottom:1px dashed var(--rule);padding-bottom:.8rem;margin-bottom:.8rem}
+.fstep{font:600 .74rem var(--sans);color:var(--red);margin-bottom:.4rem}
+.vis{min-height:5.5rem;display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;overflow-x:auto;padding:.3rem 0 .5rem}
+.say p{font:1.02rem/1.6 var(--serif);color:#1f2a35;margin:.3rem 0;max-width:62ch}
+.ask{margin:.5rem 0 .2rem;padding:.4rem .7rem;background:var(--amber-soft);border-left:3px solid var(--amber);font:.92rem/1.45 var(--sans);color:#5a4100;max-width:62ch}
+.snav{display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem .7rem;border-top:1px solid var(--rule-2);flex-wrap:wrap}
+.sbtn{border:1.5px solid var(--ink);background:#fff;color:var(--ink);padding:.3rem .7rem;font:500 .88rem var(--sans)}
+.sbtn.primary{background:var(--ink);color:#fff}.sbtn:disabled{opacity:.35;cursor:default}
+.sbtn.ghost{border-color:var(--rule);color:var(--muted);margin-left:auto}
+.sdots{display:flex;gap:.3rem}.sdot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ink-soft);background:#fff;padding:0}
+.sdot.seen{background:var(--ink-soft)}.sdot.on{background:var(--red);border-color:var(--red)}
+@media print{.story .frame{display:block}.snav{display:none}}
+/* primitives */
+.chips{display:inline-flex;flex-wrap:wrap;gap:3px}
+.chip{display:inline-block;font:500 .78rem var(--mono);border:1px solid var(--ink-soft);padding:.05rem .32rem;background:#fff;color:var(--ink);border-radius:3px}
+.chip.banned{color:var(--red);border-color:var(--red);text-decoration:line-through;background:var(--red-soft)}
+.chip.used{color:#a7b0b7;border-color:#d4dade;text-decoration:line-through}
+.chip.pick{background:var(--amber-soft);border-color:var(--amber)}
+.slots{display:flex;align-items:stretch;gap:.35rem;flex-wrap:wrap}
+.slot{border:2px dashed #b9c5cc;min-width:4.6rem;max-width:11rem;display:flex;flex-direction:column;background:#fbfcfc}
+.slot.on{border:2px solid var(--amber);background:#fffaf0}.slot.done{border:2px solid var(--ink-soft);background:#fff}
+.slot .sl{font:600 .72rem var(--sans);color:var(--ink-soft);padding:.2rem .35rem;border-bottom:1px solid var(--rule-2)}
+.slot .sb{padding:.3rem;flex:1;font:.78rem var(--sans);color:var(--muted)}
+.slot .sc{font:600 1.35rem var(--serif);color:var(--ink);text-align:center;padding:.1rem 0 .2rem}
+.slot:not(.on):not(.done) .sc{color:#c3ccd2}
+.op{align-self:center;font:600 1.3rem var(--serif);color:var(--ink)}
+.result{align-self:center;font:600 1.5rem var(--serif);color:#fff;background:var(--green);padding:.2rem .7rem}
+.vnote{font:.85rem var(--sans);color:var(--muted)}
+.word{display:inline-flex;gap:2px}
+.tile{display:inline-flex;align-items:baseline;justify-content:center;min-width:1.7rem;height:1.9rem;padding:0 .2rem;border:1.5px solid var(--ink);background:#fff;font:600 1.05rem var(--mono);color:var(--ink);line-height:1.8rem}
+.tile sub{font-size:.62rem;margin-left:1px}
+.tile.blue{background:#dbe7f7;border-color:#3a67a8;color:#21457c}.tile.red{background:#f6dcd8;border-color:#b8322a;color:#8a231d}.tile.green{background:#dcefe3;border-color:#2e7d5b;color:#1d5a40}
+.bundle-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.bundle{display:flex;gap:.4rem;flex-wrap:wrap;border:1.5px dashed var(--amber);padding:.35rem;background:#fffaf0}
+.barrow{font:600 1.3rem var(--serif);color:var(--amber)}
+.bres{font:600 1rem var(--serif);color:var(--ink)}
+.blabel{font:.82rem var(--sans);color:var(--muted)}
+.vtable{border-collapse:collapse;font:.88rem var(--mono)}
+.vtable th,.vtable td{border:1px solid var(--rule);padding:.22rem .5rem;text-align:center}
+.vtable th{background:#eef2f5;color:var(--ink);font-family:var(--sans);font-weight:600}
+.vtable tr.hl td{background:var(--amber-soft);font-weight:600}
+.bigline{font:600 1.15rem/1.4 var(--serif);color:var(--ink);padding:.2rem 0}
+.bigline.sm{font-size:.9rem;color:var(--ink-soft)}
+.bogus{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px;color:var(--red)}
+.vrow{display:flex;flex-wrap:wrap;align-items:flex-start}
+.vstack{display:flex;flex-direction:column;gap:.5rem;align-items:flex-start}
+.treewrap{overflow-x:auto;max-width:100%}
+svg.tree .te{stroke:#9fb0bc;stroke-width:1.5}svg.tree .te.on{stroke:var(--amber);stroke-width:3}
+svg.tree .tn rect{fill:#fff;stroke:var(--ink-soft);stroke-width:1.3}svg.tree .tn.on rect{fill:var(--amber-soft);stroke:var(--amber)}
+svg.tree text{font:600 11px var(--sans);fill:var(--ink)}svg.tree .troot{fill:var(--ink)}svg.tree .tlab.small{font:500 10px var(--sans);fill:var(--muted)}
+svg.dots .de{stroke:#9fb0bc;stroke-width:2}svg.dots .de.new{stroke:var(--red);stroke-width:3}
+svg.dots .dn{fill:#fff;stroke:var(--ink);stroke-width:2}svg.dots .dt{font:600 12px var(--sans);fill:var(--ink)}
+.flow{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.fn{border:1.5px solid var(--rule);padding:.3rem .7rem;font:500 .88rem var(--sans);color:var(--muted);background:#fff}
+.fn.past{border-color:var(--ink-soft);color:var(--ink-soft)}.fn.on{border:2px solid var(--red);color:var(--ink);font-weight:600;background:#fff6f4}
+.fa{color:#b7c2c9;padding-left:1.2rem;line-height:1.1}
+.beads{display:flex;gap:.4rem;margin:.15rem 0}.bead{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink-soft);background:#fff}
+.beads.sq .bead{border-radius:3px}
+.bead.r{background:#c0392b;border-color:#8a231d}.bead.q{background:repeating-linear-gradient(45deg,#eef1f3 0 4px,#fff 4px 8px)}
+.bead.y{background:#f2c641;border-color:#a8841a}.bead.g{background:#3e9b6c}.bead.b{background:#3a67a8}
+.chairs{display:flex;gap:.35rem}.chair{width:3.2rem;height:2.4rem;border:2px solid var(--ink-soft);border-bottom-width:5px;display:grid;place-items:center;font:600 .85rem var(--sans);color:var(--ink);background:#fff}
+.chair.full{background:#e9eef4}.chair.next{border-color:var(--amber);background:#fffaf0}
+.shelves{display:flex;gap:.8rem}.shelf{display:flex;flex-direction:column;align-items:center;border-bottom:3px solid var(--graphite);padding:0 .4rem}
+.shelf span{font:.72rem var(--sans);color:var(--muted);order:3}.bk{width:2.8rem;height:1.4rem;border:1.5px solid var(--ink);background:#dbe7f7;font:600 .8rem var(--mono);display:grid;place-items:center;margin-top:2px}
+.books{display:flex;gap:.3rem;align-items:flex-end}.books .bk{width:auto;padding:0 .5rem;height:2.6rem}.books .bk.blk{background:var(--amber-soft);border-color:var(--amber)}
+.plate{display:flex;gap:2px;margin:1px 0}.plate span{width:1.6rem;height:1.5rem;display:grid;place-items:center;font:600 .8rem var(--mono);border:1px solid var(--rule)}
+.plate .L{background:var(--amber-soft);border-color:var(--amber);color:#7a5200}.plate .D{color:#9aa6af}
+.cboard{display:grid;grid-template-columns:repeat(5,2.3rem);gap:1px;border:2px solid var(--ink)}
+.cboard span{height:2.3rem;display:grid;place-items:center;font:600 .78rem var(--mono)}
+.cboard .dk{background:#c9d4dc;color:var(--ink)}.cboard .lt{background:#fff;color:var(--ink)}
+.pc.empty{background:#fff;border:1px dashed var(--rule)}
+/* ---- plan-guided frames ---- */
+.pf{display:grid;grid-template-columns:13.5rem minmax(0,1fr);gap:1rem;align-items:start;width:100%}
+.pmini{display:flex;flex-direction:column;gap:3px;border-right:2px solid var(--rule-2);padding-right:.7rem}
+.pm{display:flex;gap:.4rem;align-items:baseline;font:500 .76rem/1.3 var(--sans);color:#a3adb5;border:1px solid var(--rule-2);padding:.2rem .4rem;background:#fff}
+.pm .pmn{font:600 .7rem var(--mono);min-width:.9rem}
+.pm.past{color:var(--ink-soft);border-color:#c6d0d6}
+.pm.on{color:var(--ink);font-weight:600;border:2px solid var(--red);background:#fff6f4}
+.pm.skip{color:#b5bcc2;border-style:dashed;text-decoration:line-through;text-decoration-color:#c9cfd4}
+.pm.skip i{font-style:normal;text-decoration:none;display:inline-block;font-size:.66rem;color:#9aa4ab;margin-left:.2rem}
+.pf-main{display:flex;flex-direction:column;gap:.55rem;align-items:flex-start;min-width:0;overflow-x:auto}
+.pf-tag{font:600 .95rem var(--serif);color:var(--red)}
+.story .frame .vis:has(.pf){min-height:0}
+.yes{display:inline-block;font:600 .85rem var(--sans);color:#fff;background:var(--red);padding:.1rem .5rem}
+.no{display:inline-block;font:600 .85rem var(--sans);color:#fff;background:var(--green);padding:.1rem .5rem}
+.ex{font:.8rem var(--sans);color:var(--muted)}
+@media (max-width:700px){.pf{grid-template-columns:1fr}.pmini{border-right:0;border-bottom:2px solid var(--rule-2);padding:0 0 .5rem;flex-direction:row;flex-wrap:wrap}
+  .pm{font-size:.68rem}.pm:not(.on) .pmn~*{display:none}}
+.pf.plan{grid-template-columns:minmax(14rem,19rem) minmax(0,1fr)}
+.pf.plan .pf-main{border-left:3px solid var(--amber);padding-left:.9rem}
+.pf.plan .pf-tag{color:var(--amber);font-size:.9rem}
+.ex-say{font:.95rem/1.5 var(--serif);color:#3a3020;max-width:42ch}
+@media (max-width:700px){.pf.plan{grid-template-columns:1fr}.pf.plan .pf-main{border-left:0;padding-left:0;border-top:3px solid var(--amber);padding-top:.5rem}
+  .pm:not(.on){font-size:0;padding:.15rem .3rem}.pm:not(.on) .pmn{font-size:.7rem}}
+.story.worked .fstep,.story.plan .fstep{display:none}
+.pf .slots{flex-wrap:nowrap}
+.pf.plan{grid-template-columns:12.5rem minmax(0,1fr)}
+.pf.plan .fn{font-size:.8rem;padding:.25rem .55rem}
+.notes{display:grid;grid-template-columns:14rem minmax(0,56rem);gap:2rem;max-width:74rem;margin:0 auto;padding:1.5rem 1.2rem 6rem}
 .toc{position:sticky;top:1rem;align-self:start;max-height:calc(100vh - 2rem);overflow:auto;font-size:.9rem;border-right:2px solid var(--red);padding-right:1rem}
 .toc a{display:block;padding:.18rem 0;text-decoration:none;color:var(--graphite)} .toc a:hover{color:var(--red)}
 .toc .sub{padding-left:.8rem;font-size:.85rem}
@@ -115,6 +220,7 @@ dl.gloss dd{margin:.15rem 0 0 1rem;font:1rem/1.6 var(--serif)}
 <a href="counting-lesson.html"><b>Lesson</b><span>Ten concepts, each with one guided problem, ending with pick grids.</span></a>
 <a href="counting-practice.html"><b>Practice</b><span>All 18 problems from Problem Set 3, Problem 2.4 from the lecture note, and 13 challenge problems from the unit test.</span></a>
 </div>
+<h2>How to think about any counting problem</h2><div class="story plan" id="plan-story" data-n="7" data-cur="0"><div class="shead">The counting plan: the same questions for every problem</div><div class="frames"><section class="frame on" data-i="0" aria-label="Step 1 of 7"><div class="fstep">Step 1 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn on">What am I making?</div><div class="fa">↓</div><div class="fn">Build it one decision at a time</div><div class="fa">↓</div><div class="fn">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><span class="chips"><span class="chip ">Ana</span><span class="chip ">Ben</span><span class="chip ">Cy</span><span class="chip ">Dot</span></span><div class="bigline ">one answer: Ana and Cy</div></div><div class="ex-say">A finished answer is a <b>pair of helpers</b>.</div></div></div></div><div class="say"><p>Every counting problem asks you to <b>make</b> something: an outfit, a number, a line of people, a hand of cards. Say out loud what one finished thing looks like.</p></div><div class="ask"><b>Ask him:</b> Show me one example of the thing we're counting.</div></section><section class="frame" data-i="1" aria-label="Step 2 of 7"><div class="fstep">Step 2 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn on">Build it one decision at a time</div><div class="fa">↓</div><div class="fn">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="slots"><div class="slot "><div class="sl">1st helper</div><div class="sb"></div><div class="sc">?</div></div><div class="op">×</div><div class="slot "><div class="sl">2nd helper</div><div class="sb"></div><div class="sc">?</div></div></div><div class="ex-say">Two decisions: pick one helper, then pick another.</div></div></div></div><div class="say"><p>Break making it into <b>decisions</b>, one after another: first the shirt, then the pants; first digit, then second digit. Draw one box (a <b>slot</b>) for each decision.</p></div><div class="ask"><b>Ask him:</b> What's the first decision? What's the next one?</div></section><section class="frame" data-i="2" aria-label="Step 3 of 7"><div class="fstep">Step 3 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn on">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><div class="slots"><div class="slot on"><div class="sl">1st</div><div class="sb"><span class="chips"><span class="chip pick">Ana</span><span class="chip ">Ben</span><span class="chip ">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">4</div></div><div class="op">×</div><div class="slot on"><div class="sl">2nd</div><div class="sb"><span class="chips"><span class="chip used">Ana</span><span class="chip ">Ben</span><span class="chip ">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">3</div></div></div><div class="slots"><div class="slot on"><div class="sl">1st</div><div class="sb"><span class="chips"><span class="chip ">Ana</span><span class="chip ">Ben</span><span class="chip pick">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">4</div></div><div class="op">×</div><div class="slot on"><div class="sl">2nd</div><div class="sb"><span class="chips"><span class="chip ">Ana</span><span class="chip ">Ben</span><span class="chip used">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">3</div></div></div></div><div class="ex-say">If Ana goes first, Ben, Cy or Dot can be second. If Cy goes first, Ana, Ben or Dot. <b>Different kids, always 3.</b></div></div></div></div><div class="say"><p>Count the options for each slot. Then check the key question: <b>does every earlier choice leave the same number of options?</b> The options can be different. Only the <i>number</i> has to stay the same. If it doesn't, change the order of your decisions, or split into cases.</p></div><div class="ask"><b>Ask him:</b> If you picked something else first, would this slot still have the same number of options?</div></section><section class="frame" data-i="3" aria-label="Step 4 of 7"><div class="fstep">Step 4 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn on">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><div class="slots"><div class="slot done"><div class="sl">1st</div><div class="sb"></div><div class="sc">4</div></div><div class="op">×</div><div class="slot done"><div class="sl">2nd</div><div class="sb"></div><div class="sc">3</div></div><div class="op">=</div><div class="result">12</div></div><div class="pscroll"><div class="pgrid" style="--cols:4"><div class="ph corner"><span>1st pick ↓</span><span>2nd pick →</span></div><div class="ph">A</div><div class="ph">B</div><div class="ph">C</div><div class="ph">D</div><div class="ph rh">A</div><div class="pc x"><b>×</b></div><div class="pc plain"><b>AB</b></div><div class="pc plain"><b>AC</b></div><div class="pc plain"><b>AD</b></div><div class="ph rh">B</div><div class="pc plain"><b>BA</b></div><div class="pc x"><b>×</b></div><div class="pc plain"><b>BC</b></div><div class="pc plain"><b>BD</b></div><div class="ph rh">C</div><div class="pc plain"><b>CA</b></div><div class="pc plain"><b>CB</b></div><div class="pc x"><b>×</b></div><div class="pc plain"><b>CD</b></div><div class="ph rh">D</div><div class="pc plain"><b>DA</b></div><div class="pc plain"><b>DB</b></div><div class="pc plain"><b>DC</b></div><div class="pc x"><b>×</b></div></div></div></div><div class="ex-say">4 × 3 = 12. The grid shows all 12 picks: first helper down the side, second across the top, with the diagonal crossed out.</div></div></div></div><div class="say"><p>If yes, <b>multiply</b> the slot counts. That's the rule of product: every choice in one slot starts its own equal-sized group of choices in the next.</p></div><div class="ask"><b>Ask him:</b> Why multiply and not add?</div></section><section class="frame" data-i="4" aria-label="Step 5 of 7"><div class="fstep">Step 5 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn past">Multiply the option counts</div><div class="fa">↓</div><div class="fn on">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><div class="pscroll"><div class="pgrid" style="--cols:4"><div class="ph corner"><span>1st pick ↓</span><span>2nd pick →</span></div><div class="ph">A</div><div class="ph">B</div><div class="ph">C</div><div class="ph">D</div><div class="ph rh">A</div><div class="pc x"><b>×</b></div><div class="pc keep hl"><b>AB</b></div><div class="pc keep"><b>AC</b></div><div class="pc keep"><b>AD</b></div><div class="ph rh">B</div><div class="pc twin hl"><b>BA</b></div><div class="pc x"><b>×</b></div><div class="pc keep"><b>BC</b></div><div class="pc keep"><b>BD</b></div><div class="ph rh">C</div><div class="pc twin"><b>CA</b></div><div class="pc twin"><b>CB</b></div><div class="pc x"><b>×</b></div><div class="pc keep"><b>CD</b></div><div class="ph rh">D</div><div class="pc twin"><b>DA</b></div><div class="pc twin"><b>DB</b></div><div class="pc twin"><b>DC</b></div><div class="pc x"><b>×</b></div></div></div><div class="bigline sm">AB and BA: the same two helpers!</div></div><div class="ex-say">Picking Ana then Ben gives the same pair as Ben then Ana. Every pair was built <b>twice</b>. (A captain and a vice-captain would have no twins: those are different jobs.)</div></div></div></div><div class="say"><p>Now look for <b>twins</b>: did your process build the same final thing in more than one way? That happens when things are identical (two L's), when order doesn't matter (a handshake, a team, a hand of cards), or when whole groups are interchangeable.</p></div><div class="ask"><b>Ask him:</b> Could I get this exact same answer by making my choices in a different order?</div></section><section class="frame" data-i="5" aria-label="Step 6 of 7"><div class="fstep">Step 6 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn past">Multiply the option counts</div><div class="fa">↓</div><div class="fn past">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn on">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="slots"><div class="slot done"><div class="sl">ordered picks</div><div class="sb"></div><div class="sc">12</div></div><div class="op">÷</div><div class="slot on"><div class="sl">copies of each pair</div><div class="sb"></div><div class="sc">2</div></div><div class="op">=</div><div class="result">6</div></div><div class="ex-say">Each pair appeared exactly 2 times, so 12 ÷ 2 = 6 pairs.</div></div></div></div><div class="say"><p>If every final thing was built the same number of times, <b>divide</b> by that number. Two orders for a pair: divide by 2. Three identical letters: divide by 3! = 6. (If only <i>some</i> things were counted twice, take those extras away instead.)</p></div><div class="ask"><b>Ask him:</b> How many times did we build each one?</div></section><section class="frame" data-i="6" aria-label="Step 7 of 7"><div class="fstep">Step 7 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn past">Multiply the option counts</div><div class="fa">↓</div><div class="fn past">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn past">Divide by how many times</div><div class="fa">↓</div><div class="fn on">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><span class="chips"><span class="chip ">Ana + Ben</span><span class="chip ">Ana + Cy</span><span class="chip ">Ana + Dot</span><span class="chip ">Ben + Cy</span><span class="chip ">Ben + Dot</span><span class="chip ">Cy + Dot</span></span><div class="bigline sm">6 pairs ✓</div></div><div class="ex-say">List every pair by hand, holding the first name fixed: exactly 6. The method was right.</div></div></div></div><div class="say"><p>Finally <b>check on a small case</b> you can list by hand. If the method gives the right count for the small case, trust it for the big one.</p></div><div class="ask"><b>Ask him:</b> Can you make a tiny version of this problem and list every answer?</div></section></div><div class="snav"><button type="button" class="sbtn" data-prev disabled aria-label="Previous step">← Back</button><span class="sdots"><button type="button" class="sdot on" data-go="0" aria-label="Go to step 1"></button><button type="button" class="sdot" data-go="1" aria-label="Go to step 2"></button><button type="button" class="sdot" data-go="2" aria-label="Go to step 3"></button><button type="button" class="sdot" data-go="3" aria-label="Go to step 4"></button><button type="button" class="sdot" data-go="4" aria-label="Go to step 5"></button><button type="button" class="sdot" data-go="5" aria-label="Go to step 6"></button><button type="button" class="sdot" data-go="6" aria-label="Go to step 7"></button></span><button type="button" class="sbtn primary" data-next aria-label="Next step">Next step →</button><button type="button" class="sbtn ghost" data-all aria-pressed="false">Show all steps</button></div></div>
 <h2>How grading works</h2>
 <p>Each problem is split into a few steps. Write your method in the work area, put the result in the answer box and press <b>Check step</b>.</p>
 <ul><li>A wrong answer gets a nudge, a question to ask yourself. Nudges get more specific with each try.</li>
@@ -411,5 +517,33 @@ dl.gloss dd{margin:.15rem 0 0 1rem;font:1rem/1.6 var(--serif)}
     megapixels: function () { return (base.width * base.height + live.width * live.height) / 1e6; },
     resetStats: function () { for (var k in stats) stats[k] = 0; }
   };
+})();
+
+/* ---------- step-by-step visual stories ---------- */
+(function () {
+  function show(st, i) {
+    var n = +st.dataset.n; i = Math.max(0, Math.min(n - 1, i)); st.dataset.cur = i;
+    st.querySelectorAll('.frame').forEach(function (f, k) { f.classList.toggle('on', k === i); });
+    st.querySelectorAll('.sdot').forEach(function (d, k) { d.classList.toggle('on', k === i); d.classList.toggle('seen', k < i); });
+    var p = st.querySelector('[data-prev]'), nx = st.querySelector('[data-next]');
+    p.disabled = i === 0; nx.disabled = i === n - 1;
+    nx.textContent = i === n - 1 ? 'Done' : 'Next step →';
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.story button'); if (!b) return;
+    var st = b.closest('.story'), cur = +st.dataset.cur;
+    if (b.hasAttribute('data-next')) show(st, cur + 1);
+    else if (b.hasAttribute('data-prev')) show(st, cur - 1);
+    else if (b.dataset.go) show(st, +b.dataset.go);
+    else if (b.hasAttribute('data-all')) {
+      var all = st.classList.toggle('all'); b.setAttribute('aria-pressed', String(all)); b.textContent = all ? 'One step at a time' : 'Show all steps';
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    var st = e.target.closest && e.target.closest('.story'); if (!st) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(st, +st.dataset.cur + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(st, +st.dataset.cur - 1); }
+  });
+  window.STORY = { show: show };
 })();
 </script></body></html>
