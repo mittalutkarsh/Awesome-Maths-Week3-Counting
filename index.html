@@ -1,549 +1,2646 @@
-<!doctype html><html lang="en" data-pen-mode="page"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Week 3 · Rule of Product</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{
-  --paper:#f2f5f4; --sheet:#fbfcfb; --rule:#d5dfe2; --rule-2:#e6edef;
-  --ink:#1b3358; --ink-soft:#4a6385; --graphite:#3b454f; --muted:#6b7680;
-  --red:#b8322a; --amber:#b57b0e; --green:#2e7d5b; --green-soft:#d9ece3; --red-soft:#f5dfdc; --amber-soft:#f6ead1;
-  --console:#16202b; --console-ink:#d3dfe6;
-  --serif:"Fraunces", Georgia, "Times New Roman", serif;
-  --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--graphite);font:15px/1.5 var(--sans);
-  background-image:linear-gradient(var(--rule-2) 1px,transparent 1px),linear-gradient(90deg,var(--rule-2) 1px,transparent 1px);
-  background-size:24px 24px}
-a{color:var(--ink)} a:hover{color:var(--red)}
-:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:2px}
-button{font:inherit;cursor:pointer}
-.eq{font-family:var(--serif);font-size:1.3rem;color:var(--ink);text-align:center;padding:.7rem 1rem;margin:0 0 1rem;
-  background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--red)}
-.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em;line-height:1.15}
-.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em}
-.frac>span:last-child{padding:0 .25em}
-.fig.strip{display:flex;justify-content:center;gap:0;margin:1rem 0}
-.fig.strip span{width:44px;height:44px;border:2px solid var(--ink);margin-left:-2px;background:#fff}
-.fig.grid5{display:grid;grid-template-columns:repeat(5,34px);width:max-content;margin:1rem auto;border:2px solid var(--ink)}
-.fig.grid5 span{height:34px;border:1px solid var(--ink-soft);background:#fff}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What is a kernel? — The anatomy of inner products</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+  :root {
+    --paper: #ECEFF1;
+    --card: #F6F8F9;
+    --ink: #151A1E;
+    --ink-soft: #4C575F;
+    --ink-faint: #7E8A92;
+    --rule: #C2CAD1;
+    --prod: #2E6E5B;
+    --prod-bg: #DFEBE6;
+    --res: #A64B2A;
+    --res-bg: #F2E3DC;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.68;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 72px 28px 120px; }
 
-/* ---- pen ---- */
-.ink{position:fixed;left:0;top:0;pointer-events:none;z-index:70}
-#ink-live{z-index:71}
-html.pen-on #ink-live{cursor:crosshair}
-#pen-toggle{position:fixed;left:14px;bottom:14px;z-index:80;background:var(--ink);color:#fff;border:0;border-radius:22px;
-  padding:.5rem 1rem .5rem .8rem;font-weight:600;box-shadow:0 2px 0 #0d1d33}
-#pen-toggle[aria-pressed=true]{background:var(--red);box-shadow:0 2px 0 #7a1e18}
-#pen-toggle svg{vertical-align:-3px;margin-right:.35rem}
-#pen-bar{position:fixed;left:14px;bottom:62px;z-index:80;background:var(--sheet);border:1.5px solid var(--ink);
-  padding:.45rem;display:flex;flex-direction:column;gap:.35rem;width:max-content}
-#pen-bar[hidden]{display:none}
-#pen-bar .row{display:flex;gap:.3rem;align-items:center}
-#pen-bar button{border:1px solid var(--rule);background:#fff;min-width:32px;height:32px;padding:0 .45rem;color:var(--graphite);font-size:.8rem}
-#pen-bar button[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink);color:var(--ink);font-weight:600}
-#pen-bar .sw{width:32px;padding:0}
-#pen-bar .sw i{display:block;width:16px;height:16px;border-radius:50%;margin:auto}
-#pen-bar .nib i{display:block;margin:auto;border-radius:4px;background:var(--graphite);width:18px}
-#pen-toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:90;background:var(--console);color:#fff;
-  padding:.45rem .9rem;font-size:.85rem;opacity:0;transition:opacity .2s;pointer-events:none}
-#pen-toast.show{opacity:1}
-@media print{.pen-ui,.ink{display:none!important}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-/* ---- pick grid ---- */
-.pfig{margin:1.2rem 0}
-.pscroll{overflow-x:auto;padding-bottom:.3rem}
-.pgrid{display:grid;grid-template-columns:auto repeat(var(--cols),minmax(3.2rem,1fr));gap:3px;width:max-content;font-family:var(--sans)}
-.pgrid.compact{grid-template-columns:auto repeat(var(--cols),11px);gap:1px}
-.ph{font:600 .85rem var(--sans);color:var(--ink);display:grid;place-items:center;padding:.1rem .2rem}
-.ph.corner{font:500 .7rem var(--sans);color:var(--muted);display:flex;flex-direction:column;align-items:flex-end;justify-content:end;line-height:1.2}
-.pgrid.compact .ph{font-size:.55rem;padding:0}
-.pc{min-height:3rem;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--rule);font-size:.8rem;line-height:1.15}
-.pc b{font:600 .88rem var(--sans)} .pc i{font-style:normal;font-size:.72rem;color:var(--green);margin-top:.1rem}
-.pgrid.compact .pc{min-height:11px;width:11px;border:0}
-.pc.keep{background:#dcefe6;border-color:#9ccbb4;color:#1d5a40}
-.pc.plain{background:#e6f0ec;border-color:#bcd8cb;color:#1d5a40}
-.pc.twin{background:#eceae6;border-color:#d4d0c8;color:#77716a}
-.pc.x{background:#f3f1ee;color:#9b958d;border-color:#dcd8d1}
-.pgrid.compact .pc.x{background:repeating-linear-gradient(45deg,#cfc9c0 0 2px,#f3f1ee 2px 4px)}
-.pc[data-tw]{cursor:pointer}
-.pc.hl{outline:3px solid var(--amber);outline-offset:-1px;position:relative;z-index:1}
-.plegend{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;font:.78rem var(--sans);color:var(--muted);margin-top:.5rem}
-.plegend .k{display:inline-block;width:.8rem;height:.8rem;vertical-align:-1px;margin-right:.3rem;border:1px solid #8a969e}
-.plegend .k.keep{background:#dcefe6}.plegend .k.twin{background:#eceae6}.plegend .k.x{background:#f3f1ee}.plegend .k.plain{background:#e6f0ec}
-figure.pfig figcaption{font:.95rem/1.55 var(--serif);color:var(--graphite);margin-top:.5rem;max-width:62ch}
-.pgrid.tight{grid-template-columns:auto repeat(var(--cols),2.45rem);gap:2px}
-.pgrid.tight .pc{min-height:1.9rem}.pgrid.tight .pc b{font-size:.62rem;letter-spacing:-.02em}
-.pgrid.tight .ph{font-size:.72rem}
-/* ---- step-by-step stories ---- */
-.story{border:1.5px solid var(--ink);background:#fff;margin:1.2rem 0;max-width:100%}
-.story .shead{font:600 1rem var(--serif);color:#fff;background:var(--ink);padding:.45rem .8rem}
-.story.worked .shead{background:var(--green)}
-.story.plan .shead{background:var(--red)}
-.frames{padding:.8rem 1rem .4rem}
-.frame{display:none}.frame.on{display:block}
-.story.all .frame{display:block;border-bottom:1px dashed var(--rule);padding-bottom:.8rem;margin-bottom:.8rem}
-.fstep{font:600 .74rem var(--sans);color:var(--red);margin-bottom:.4rem}
-.vis{min-height:5.5rem;display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;overflow-x:auto;padding:.3rem 0 .5rem}
-.say p{font:1.02rem/1.6 var(--serif);color:#1f2a35;margin:.3rem 0;max-width:62ch}
-.ask{margin:.5rem 0 .2rem;padding:.4rem .7rem;background:var(--amber-soft);border-left:3px solid var(--amber);font:.92rem/1.45 var(--sans);color:#5a4100;max-width:62ch}
-.snav{display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem .7rem;border-top:1px solid var(--rule-2);flex-wrap:wrap}
-.sbtn{border:1.5px solid var(--ink);background:#fff;color:var(--ink);padding:.3rem .7rem;font:500 .88rem var(--sans)}
-.sbtn.primary{background:var(--ink);color:#fff}.sbtn:disabled{opacity:.35;cursor:default}
-.sbtn.ghost{border-color:var(--rule);color:var(--muted);margin-left:auto}
-.sdots{display:flex;gap:.3rem}.sdot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ink-soft);background:#fff;padding:0}
-.sdot.seen{background:var(--ink-soft)}.sdot.on{background:var(--red);border-color:var(--red)}
-@media print{.story .frame{display:block}.snav{display:none}}
-/* primitives */
-.chips{display:inline-flex;flex-wrap:wrap;gap:3px}
-.chip{display:inline-block;font:500 .78rem var(--mono);border:1px solid var(--ink-soft);padding:.05rem .32rem;background:#fff;color:var(--ink);border-radius:3px}
-.chip.banned{color:var(--red);border-color:var(--red);text-decoration:line-through;background:var(--red-soft)}
-.chip.used{color:#a7b0b7;border-color:#d4dade;text-decoration:line-through}
-.chip.pick{background:var(--amber-soft);border-color:var(--amber)}
-.slots{display:flex;align-items:stretch;gap:.35rem;flex-wrap:wrap}
-.slot{border:2px dashed #b9c5cc;min-width:4.6rem;max-width:11rem;display:flex;flex-direction:column;background:#fbfcfc}
-.slot.on{border:2px solid var(--amber);background:#fffaf0}.slot.done{border:2px solid var(--ink-soft);background:#fff}
-.slot .sl{font:600 .72rem var(--sans);color:var(--ink-soft);padding:.2rem .35rem;border-bottom:1px solid var(--rule-2)}
-.slot .sb{padding:.3rem;flex:1;font:.78rem var(--sans);color:var(--muted)}
-.slot .sc{font:600 1.35rem var(--serif);color:var(--ink);text-align:center;padding:.1rem 0 .2rem}
-.slot:not(.on):not(.done) .sc{color:#c3ccd2}
-.op{align-self:center;font:600 1.3rem var(--serif);color:var(--ink)}
-.result{align-self:center;font:600 1.5rem var(--serif);color:#fff;background:var(--green);padding:.2rem .7rem}
-.vnote{font:.85rem var(--sans);color:var(--muted)}
-.word{display:inline-flex;gap:2px}
-.tile{display:inline-flex;align-items:baseline;justify-content:center;min-width:1.7rem;height:1.9rem;padding:0 .2rem;border:1.5px solid var(--ink);background:#fff;font:600 1.05rem var(--mono);color:var(--ink);line-height:1.8rem}
-.tile sub{font-size:.62rem;margin-left:1px}
-.tile.blue{background:#dbe7f7;border-color:#3a67a8;color:#21457c}.tile.red{background:#f6dcd8;border-color:#b8322a;color:#8a231d}.tile.green{background:#dcefe3;border-color:#2e7d5b;color:#1d5a40}
-.bundle-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
-.bundle{display:flex;gap:.4rem;flex-wrap:wrap;border:1.5px dashed var(--amber);padding:.35rem;background:#fffaf0}
-.barrow{font:600 1.3rem var(--serif);color:var(--amber)}
-.bres{font:600 1rem var(--serif);color:var(--ink)}
-.blabel{font:.82rem var(--sans);color:var(--muted)}
-.vtable{border-collapse:collapse;font:.88rem var(--mono)}
-.vtable th,.vtable td{border:1px solid var(--rule);padding:.22rem .5rem;text-align:center}
-.vtable th{background:#eef2f5;color:var(--ink);font-family:var(--sans);font-weight:600}
-.vtable tr.hl td{background:var(--amber-soft);font-weight:600}
-.bigline{font:600 1.15rem/1.4 var(--serif);color:var(--ink);padding:.2rem 0}
-.bigline.sm{font-size:.9rem;color:var(--ink-soft)}
-.bogus{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px;color:var(--red)}
-.vrow{display:flex;flex-wrap:wrap;align-items:flex-start}
-.vstack{display:flex;flex-direction:column;gap:.5rem;align-items:flex-start}
-.treewrap{overflow-x:auto;max-width:100%}
-svg.tree .te{stroke:#9fb0bc;stroke-width:1.5}svg.tree .te.on{stroke:var(--amber);stroke-width:3}
-svg.tree .tn rect{fill:#fff;stroke:var(--ink-soft);stroke-width:1.3}svg.tree .tn.on rect{fill:var(--amber-soft);stroke:var(--amber)}
-svg.tree text{font:600 11px var(--sans);fill:var(--ink)}svg.tree .troot{fill:var(--ink)}svg.tree .tlab.small{font:500 10px var(--sans);fill:var(--muted)}
-svg.dots .de{stroke:#9fb0bc;stroke-width:2}svg.dots .de.new{stroke:var(--red);stroke-width:3}
-svg.dots .dn{fill:#fff;stroke:var(--ink);stroke-width:2}svg.dots .dt{font:600 12px var(--sans);fill:var(--ink)}
-.flow{display:flex;flex-direction:column;align-items:flex-start;gap:0}
-.fn{border:1.5px solid var(--rule);padding:.3rem .7rem;font:500 .88rem var(--sans);color:var(--muted);background:#fff}
-.fn.past{border-color:var(--ink-soft);color:var(--ink-soft)}.fn.on{border:2px solid var(--red);color:var(--ink);font-weight:600;background:#fff6f4}
-.fa{color:#b7c2c9;padding-left:1.2rem;line-height:1.1}
-.beads{display:flex;gap:.4rem;margin:.15rem 0}.bead{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink-soft);background:#fff}
-.beads.sq .bead{border-radius:3px}
-.bead.r{background:#c0392b;border-color:#8a231d}.bead.q{background:repeating-linear-gradient(45deg,#eef1f3 0 4px,#fff 4px 8px)}
-.bead.y{background:#f2c641;border-color:#a8841a}.bead.g{background:#3e9b6c}.bead.b{background:#3a67a8}
-.chairs{display:flex;gap:.35rem}.chair{width:3.2rem;height:2.4rem;border:2px solid var(--ink-soft);border-bottom-width:5px;display:grid;place-items:center;font:600 .85rem var(--sans);color:var(--ink);background:#fff}
-.chair.full{background:#e9eef4}.chair.next{border-color:var(--amber);background:#fffaf0}
-.shelves{display:flex;gap:.8rem}.shelf{display:flex;flex-direction:column;align-items:center;border-bottom:3px solid var(--graphite);padding:0 .4rem}
-.shelf span{font:.72rem var(--sans);color:var(--muted);order:3}.bk{width:2.8rem;height:1.4rem;border:1.5px solid var(--ink);background:#dbe7f7;font:600 .8rem var(--mono);display:grid;place-items:center;margin-top:2px}
-.books{display:flex;gap:.3rem;align-items:flex-end}.books .bk{width:auto;padding:0 .5rem;height:2.6rem}.books .bk.blk{background:var(--amber-soft);border-color:var(--amber)}
-.plate{display:flex;gap:2px;margin:1px 0}.plate span{width:1.6rem;height:1.5rem;display:grid;place-items:center;font:600 .8rem var(--mono);border:1px solid var(--rule)}
-.plate .L{background:var(--amber-soft);border-color:var(--amber);color:#7a5200}.plate .D{color:#9aa6af}
-.cboard{display:grid;grid-template-columns:repeat(5,2.3rem);gap:1px;border:2px solid var(--ink)}
-.cboard span{height:2.3rem;display:grid;place-items:center;font:600 .78rem var(--mono)}
-.cboard .dk{background:#c9d4dc;color:var(--ink)}.cboard .lt{background:#fff;color:var(--ink)}
-.pc.empty{background:#fff;border:1px dashed var(--rule)}
-/* ---- plan-guided frames ---- */
-.pf{display:grid;grid-template-columns:13.5rem minmax(0,1fr);gap:1rem;align-items:start;width:100%}
-.pmini{display:flex;flex-direction:column;gap:3px;border-right:2px solid var(--rule-2);padding-right:.7rem}
-.pm{display:flex;gap:.4rem;align-items:baseline;font:500 .76rem/1.3 var(--sans);color:#a3adb5;border:1px solid var(--rule-2);padding:.2rem .4rem;background:#fff}
-.pm .pmn{font:600 .7rem var(--mono);min-width:.9rem}
-.pm.past{color:var(--ink-soft);border-color:#c6d0d6}
-.pm.on{color:var(--ink);font-weight:600;border:2px solid var(--red);background:#fff6f4}
-.pm.skip{color:#b5bcc2;border-style:dashed;text-decoration:line-through;text-decoration-color:#c9cfd4}
-.pm.skip i{font-style:normal;text-decoration:none;display:inline-block;font-size:.66rem;color:#9aa4ab;margin-left:.2rem}
-.pf-main{display:flex;flex-direction:column;gap:.55rem;align-items:flex-start;min-width:0;overflow-x:auto}
-.pf-tag{font:600 .95rem var(--serif);color:var(--red)}
-.story .frame .vis:has(.pf){min-height:0}
-.yes{display:inline-block;font:600 .85rem var(--sans);color:#fff;background:var(--red);padding:.1rem .5rem}
-.no{display:inline-block;font:600 .85rem var(--sans);color:#fff;background:var(--green);padding:.1rem .5rem}
-.ex{font:.8rem var(--sans);color:var(--muted)}
-@media (max-width:700px){.pf{grid-template-columns:1fr}.pmini{border-right:0;border-bottom:2px solid var(--rule-2);padding:0 0 .5rem;flex-direction:row;flex-wrap:wrap}
-  .pm{font-size:.68rem}.pm:not(.on) .pmn~*{display:none}}
-.pf.plan{grid-template-columns:minmax(14rem,19rem) minmax(0,1fr)}
-.pf.plan .pf-main{border-left:3px solid var(--amber);padding-left:.9rem}
-.pf.plan .pf-tag{color:var(--amber);font-size:.9rem}
-.ex-say{font:.95rem/1.5 var(--serif);color:#3a3020;max-width:42ch}
-@media (max-width:700px){.pf.plan{grid-template-columns:1fr}.pf.plan .pf-main{border-left:0;padding-left:0;border-top:3px solid var(--amber);padding-top:.5rem}
-  .pm:not(.on){font-size:0;padding:.15rem .3rem}.pm:not(.on) .pmn{font-size:.7rem}}
-.story.worked .fstep,.story.plan .fstep{display:none}
-.pf .slots{flex-wrap:nowrap}
-.pf.plan{grid-template-columns:12.5rem minmax(0,1fr)}
-.pf.plan .fn{font-size:.8rem;padding:.25rem .55rem}
-.notes{display:grid;grid-template-columns:14rem minmax(0,56rem);gap:2rem;max-width:74rem;margin:0 auto;padding:1.5rem 1.2rem 6rem}
-.toc{position:sticky;top:1rem;align-self:start;max-height:calc(100vh - 2rem);overflow:auto;font-size:.9rem;border-right:2px solid var(--red);padding-right:1rem}
-.toc a{display:block;padding:.18rem 0;text-decoration:none;color:var(--graphite)} .toc a:hover{color:var(--red)}
-.toc .sub{padding-left:.8rem;font-size:.85rem}
-.sheet{background:var(--sheet);border:1px solid var(--rule);padding:2rem 2.4rem}
-.sheet h1{font:600 2.1rem/1.15 var(--serif);color:var(--ink);margin:0 0 .4rem}
-.sheet h2{font:600 1.45rem/1.25 var(--serif);color:var(--ink);margin:2.6rem 0 .8rem;padding-top:.6rem;border-top:2px solid var(--ink)}
-.sheet h3{font:600 1.1rem var(--serif);color:var(--ink);margin:1.6rem 0 .5rem}
-.sheet p,.sheet li{font:1.02rem/1.68 var(--serif);color:#222c36}
-.lede{font-size:1.1rem!important;color:var(--ink-soft)!important}
-.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0 0}
-.chips a{font:500 .8rem var(--mono);text-decoration:none;border:1px solid var(--ink-soft);padding:.15rem .5rem;background:#fff}
-.chips span{font:.82rem var(--sans);color:var(--muted);align-self:center}
-.trap{margin:1.3rem 0;padding-left:1rem;border-left:3px solid var(--red)}
-.trap h3{margin:0 0 .25rem}
-.trap .wrong{font:500 .9rem var(--mono);color:var(--red)}
-.worked-ex{margin:1.2rem 0 2rem}
-.worked-ex ol{padding-left:1.3rem}
-table.cheat{border-collapse:collapse;width:100%;font-size:.95rem;margin:1rem 0}
-table.cheat th,table.cheat td{border:1px solid var(--rule);padding:.45rem .6rem;text-align:left;vertical-align:top}
-table.cheat th{background:#eef2f5;color:var(--ink);font-weight:600}
-dl.gloss dt{font:600 1rem var(--serif);color:var(--ink);margin-top:.9rem}
-dl.gloss dd{margin:.15rem 0 0 1rem;font:1rem/1.6 var(--serif)}
-.back{font-size:.9rem}
-@media (max-width:860px){.notes{grid-template-columns:1fr}.toc{position:static;max-height:none;border-right:0;border-bottom:2px solid var(--red);padding:0 0 1rem}.sheet{padding:1.3rem 1.1rem}}
-@media print{body{background:#fff}.toc{display:none}.notes{display:block}.sheet{border:0}}
-/* index */
-.home{max-width:44rem;margin:0 auto;padding:3rem 1.2rem 6rem}
-.home h1{font:600 2.6rem/1.1 var(--serif);color:var(--ink);margin:0}
-.home .kicker{font:1.05rem var(--serif);color:var(--red);margin:.2rem 0 2rem}
-.doors{display:grid;gap:0;border-top:2px solid var(--ink);margin:1.5rem 0 2.5rem}
-.doors a{display:grid;grid-template-columns:7.5rem 1fr;gap:1rem;padding:1rem .2rem;border-bottom:1px solid var(--rule);text-decoration:none;color:var(--graphite)}
-.doors a:hover{background:var(--sheet)}
-.doors b{font:600 1.25rem var(--serif);color:var(--ink)}
-.home h2{font:600 1.2rem var(--serif);color:var(--ink);margin:2rem 0 .5rem}
-.home p,.home li{font:1rem/1.65 var(--serif)}
-</style></head><body><main class="home">
-<h1>Rule of Product</h1><p class="kicker">AwesomeMath Level 1, Week 3</p>
-<div class="doors">
-<a href="counting-notes.html"><b>Notes</b><span>The whole topic written out: concepts, fifteen traps, worked solutions, a cheat sheet and a glossary.</span></a>
-<a href="counting-lesson.html"><b>Lesson</b><span>Ten concepts, each with one guided problem, ending with pick grids.</span></a>
-<a href="counting-practice.html"><b>Practice</b><span>All 18 problems from Problem Set 3, Problem 2.4 from the lecture note, and 13 challenge problems from the unit test.</span></a>
+  .kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    margin: 0 0 22px;
+  }
+  h1 {
+    font-size: 42px;
+    line-height: 1.12;
+    font-weight: 400;
+    margin: 0 0 6px;
+    letter-spacing: -0.015em;
+  }
+  h2 {
+    font-size: 25px;
+    font-weight: 400;
+    margin: 64px 0 18px;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-soft);
+    margin: 40px 0 12px;
+  }
+  .sub { font-size: 21px; color: var(--ink-soft); margin: 0 0 44px; }
+  p { margin: 0 0 20px; max-width: 68ch; }
+  .note { color: var(--ink-soft); font-size: 16px; }
+  code, .m { font-family: var(--mono); font-size: 0.86em; }
+
+  /* ---- display equation ---- */
+  .eq {
+    background: var(--ink);
+    color: #F2F4F5;
+    border-radius: 3px;
+    padding: 36px 26px 30px;
+    margin: 0 0 40px;
+    text-align: center;
+    overflow-x: auto;
+  }
+  .eq .katex { font-size: 1.42em; color: #F5F7F8; }
+  .eq .where { margin-top: 20px; font-size: 14px; color: #A9B3B9; font-family: var(--mono); }
+  .eq .where .katex { font-size: 1em; color: #A9B3B9; }
+  .eq .raw { font-family: var(--mono); font-size: 15px; color: #C9D1D6; }
+
+  /* ---- the sheet ---- */
+  .sheet {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 22px 20px 20px;
+    margin: 0 0 14px;
+    overflow-x: auto;
+  }
+  table.grid { border-collapse: separate; border-spacing: 5px; margin: 0 auto; }
+  table.grid th, table.grid td { padding: 0; }
+  .gut {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: right;
+    padding-right: 12px !important;
+    white-space: nowrap;
+    font-weight: 400;
+  }
+  .pos {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-align: center;
+    font-weight: 400;
+    padding-bottom: 2px !important;
+  }
+  input.cell {
+    width: 66px;
+    padding: 9px 4px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink);
+    background: #FFF;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    -moz-appearance: textfield;
+  }
+  input.cell::-webkit-outer-spin-button,
+  input.cell::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input.cell:focus { outline: 2px solid var(--prod); outline-offset: 1px; }
+  .out {
+    width: 66px;
+    padding: 9px 4px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 14px;
+    border-radius: 2px;
+  }
+  .out.p { background: var(--prod-bg); color: #1D4B3D; border: 1px solid #B6D2C8; }
+  .out.r { background: var(--res-bg); color: #7C3319; border: 1px solid #DEBDAE; width: 88px; }
+  .arrow { font-family: var(--mono); color: var(--ink-faint); text-align: center; padding: 0 4px !important; }
+  .divrow td { padding-top: 6px !important; }
+  .divrow hr { border: 0; border-top: 1px solid var(--rule); margin: 0 0 6px; }
+
+  /* ---- axiom panels ---- */
+  .lead { font-size: 21px; color: var(--ink-soft); margin: -8px 0 32px; }
+  .gridlabel { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin: 4px 0 8px; }
+  .panel-label {    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 34px 0 10px;
+  }
+  .cls-a { fill: #2F6FB5; }
+  .cls-b { fill: #C79A1E; }
+  .sepline { stroke: var(--ink); stroke-width: 1.5; }
+  .axisline { stroke: var(--rule); stroke-width: 1; }
+  .ring { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+  .badge { font-family: var(--mono); font-size: 10px; fill: var(--ink-soft); }
+  .scalars select { font-family: var(--mono); font-size: 13px; padding: 7px 8px; background:#fff; border:1px solid var(--rule); border-radius:2px; color:var(--ink); }
+  .shapes { display:flex; flex-wrap:wrap; align-items:center; gap:10px; font-family:var(--mono); font-size:13px; }
+  .sh { border:1px solid var(--rule); border-radius:2px; padding:8px 12px; background:#fff; color:var(--ink); }
+  .sh em { font-style:normal; color:var(--ink-faint); font-size:11px; margin-left:6px; }
+  .sh.res { background:var(--res-bg); border-color:#DEBDAE; color:#7C3319; }
+  .shx { color:var(--ink-faint); }
+  .out.dead { background: #F0F2F4; color: #AEB8BF; border: 1px dashed #D6DCE1; }
+  .out.mid { background: #E4EAEE; color: #2C3A44; border: 1px solid #CBD5DB; }
+  .out.sq { background: var(--prod-bg); color: #1D4B3D; border: 1px solid #B6D2C8; }
+  .steprule td { padding-top: 5px !important; }
+  .steprule hr { border: 0; border-top: 1px solid var(--rule); margin: 0 0 5px; }
+  .opgut { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); text-align: right; padding-right: 12px !important; }
+  .verdict {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.9;
+    border-left: 2px solid var(--res);
+    padding: 12px 16px;
+    margin: 18px 0 30px;
+    background: var(--card);
+    overflow-x: auto;
+  }
+  .verdict .ok { color: var(--prod); }
+  .verdict .no { color: var(--res); }
+  .verdict .lhs { color: var(--ink-faint); }
+
+  .caption { font-size: 15px; color: var(--ink-soft); margin: 0 0 40px; max-width: 68ch; }
+
+  /* ---- axiom ledger ---- */
+  table.ledger {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 13px;
+    margin: 0;
+  }
+  table.ledger th {
+    font-weight: 400;
+    color: var(--ink-faint);
+    font-size: 11px;
+    text-align: left;
+    padding: 0 10px 8px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  table.ledger td {
+    padding: 11px 10px 11px 0;
+    border-bottom: 1px solid #DDE3E7;
+    vertical-align: middle;
+  }
+  table.ledger tr:last-child td { border-bottom: 0; }
+  table.ledger .lhs-col { color: var(--ink-soft); white-space: nowrap; }
+  table.ledger .val { color: var(--prod); text-align: right; white-space: nowrap; }
+  table.ledger .holds { color: var(--prod); white-space: nowrap; }
+  table.ledger .fails { color: var(--res); white-space: nowrap; }
+  .scalars { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 16px 0 0; font-family: var(--mono); font-size: 13px; color: var(--ink-soft); }
+  .scalars input { width: 62px; padding: 7px 4px; text-align: center; font-family: var(--mono); font-size: 13px; background: #FFF; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink); }
+
+  .trace {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 2.1;
+    background: var(--card);
+    border-left: 2px solid var(--prod);
+    border-radius: 0;
+    padding: 16px 18px;
+    margin: 0 0 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .trace .lhs { color: var(--ink-faint); }
+  .trace .fin { color: #7C3319; }
+  .trace .ann { color: var(--ink-faint); }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 42px; }
+  button {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 8px 13px;
+    cursor: pointer;
+  }
+  button:hover { background: #E3E8EB; }
+  button:focus-visible { outline: 2px solid var(--prod); outline-offset: 2px; }
+
+  .readout {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 36px;
+  }
+  .readout b { font-weight: 400; color: var(--prod); }
+
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  footer {
+    margin-top: 80px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  @media (max-width: 620px) {
+    .wrap { padding: 48px 18px 90px; }
+    h1 { font-size: 32px; }
+    .sub { font-size: 18px; }
+    body { font-size: 17px; }
+    input.cell, .out { width: 54px; font-size: 13px; }
+    .out.r { width: 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="kicker">Kernels, part 1 of 10</p>
+  <h1>What is a kernel?</h1>
+  <p class="sub">The anatomy of inner products</p>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle \;=\; \sum_{i=1}^{n} x_i y_i \]</div>
+    <div class="where tex">\( \mathbf{x} = (x_1, \ldots, x_n), \quad \mathbf{y} = (y_1, \ldots, y_n) \)</div>
+  </div>
+
+  <p>That is the Euclidean inner product, or dot product, as many of you know it — defined for any
+  pair of <span class="m">n</span>-dimensional vectors <span class="m">x</span> and
+  <span class="m">y</span>.</p>
+
+  <p>It is three symbols and a subscript, and it hides everything interesting. So we will
+  do what the frontier-seminar spreadsheets do: set <span class="m">n = 5</span>, write both vectors
+  out as a grid, and compute every term by hand.</p>
+
+  <h3>Running example</h3>
+
+  <p>Two five-dimensional vectors. Every cell below is editable — change a number and the product
+  row and the result recompute.</p>
+
+  <div class="sheet">
+    <h2 class="sr">Editable grid computing the inner product of two five-dimensional vectors.</h2>
+    <table class="grid">
+      <tr>
+        <th class="gut">i</th>
+        <th class="pos">1</th><th class="pos">2</th><th class="pos">3</th>
+        <th class="pos">4</th><th class="pos">5</th>
+        <th></th><th></th>
+      </tr>
+      <tr>
+        <th class="gut">x</th>
+        <td><input class="cell" type="number" step="0.01" data-v="x" data-i="0" value="0.46"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="x" data-i="1" value="0.38"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="x" data-i="2" value="0.27"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="x" data-i="3" value="0.91"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="x" data-i="4" value="0.12"></td>
+        <td></td><td></td>
+      </tr>
+      <tr>
+        <th class="gut">y</th>
+        <td><input class="cell" type="number" step="0.01" data-v="y" data-i="0" value="0.28"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="y" data-i="1" value="0.36"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="y" data-i="2" value="0.47"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="y" data-i="3" value="0.10"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="y" data-i="4" value="0.63"></td>
+        <td></td><td></td>
+      </tr>
+      <tr class="divrow">
+        <td colspan="8"><hr></td>
+      </tr>
+      <tr>
+        <th class="gut">x<sub>i</sub> y<sub>i</sub></th>
+        <td><div class="out p" id="p0">0.129</div></td>
+        <td><div class="out p" id="p1">0.137</div></td>
+        <td><div class="out p" id="p2">0.127</div></td>
+        <td><div class="out p" id="p3">0.091</div></td>
+        <td><div class="out p" id="p4">0.076</div></td>
+        <td class="arrow">&rarr;</td>
+        <td><div class="out r" id="sum">0.559</div></td>
+      </tr>
+      <tr>
+        <th></th>
+        <td colspan="5"></td>
+        <td></td>
+        <td class="pos">&#10216;x, y&#10217;</td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="caption">Five numbers in, five numbers in, one number out. The green cells are the five
+  terms of the sum; the rust cell is the whole inner product. Widen the grid to 5,000 columns and the
+  rust cell is still one number.</p>
+
+  <h3>The calculation, written out</h3>
+
+  <div class="trace" id="trace"></div>
+
+  <div class="controls">
+    <button type="button" onclick="preset('same')">Set y = x</button>
+    <button type="button" onclick="preset('opp')">Set y = &minus;x</button>
+    <button type="button" onclick="preset('orth')">Make them orthogonal</button>
+    <button type="button" onclick="preset('reset')">Reset</button>
+  </div>
+
+  <p class="readout" id="readout"></p>
+
+  <h2>What the one number is telling you</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle \;=\; \lVert \mathbf{x} \rVert \, \lVert \mathbf{y} \rVert \cos\theta \]</div>
+    <div class="where tex">\( \langle \mathbf{x}, \mathbf{x} \rangle = \sum_i x_i^2 \ge 0 \) &nbsp;&mdash;&nbsp; a vector always agrees with itself</div>
+  </div>
+
+  <p>Press <span class="m">Set y = x</span> above. The result jumps, and it jumps for a reason you can
+  read straight off the grid: every term became a square, and squares cannot cancel. Agreement piles up.</p>
+
+  <p>Now press <span class="m">Set y = &minus;x</span>. Same magnitudes, same positions, and the result
+  is the same number with a minus sign. Every term is now a negative square. Disagreement piles up just
+  as reliably, in the other direction.</p>
+
+  <p>Then press <span class="m">Make them orthogonal</span>. The terms are not zero — look at the green
+  row, several of them are large — but they cancel against each other and the rust cell lands on zero.
+  Two vectors can have plenty of structure in common position by position and still return nothing.</p>
+
+  <p>So the inner product answers one question: <em>how much do these two vectors agree?</em> It answers
+  in a single scalar, positive for alignment, negative for opposition, zero for indifference. That is the
+  entire behaviour we care about.</p>
+
+  <h2>The Euclidean product is only an example</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \cdot, \cdot \rangle : V \times V \to \mathbb{R} \]</div>
+    <div class="tex" style="margin-top:22px">\[
+      \begin{aligned}
+      1)&amp; \quad \langle a\mathbf{x} + b\mathbf{y}, \mathbf{z} \rangle = a\langle \mathbf{x}, \mathbf{z} \rangle + b\langle \mathbf{y}, \mathbf{z} \rangle, \\[4pt]
+      2)&amp; \quad \langle \mathbf{x}, \mathbf{y} \rangle = \langle \mathbf{y}, \mathbf{x} \rangle, \\[4pt]
+      3)&amp; \quad \langle \mathbf{x}, \mathbf{x} \rangle \ge 0 \ \text{ and } \ \langle \mathbf{x}, \mathbf{x} \rangle = 0 \iff \mathbf{x} = 0.
+      \end{aligned}
+    \]</div>
+    <div class="where">linearity &nbsp;&middot;&nbsp; symmetry &nbsp;&middot;&nbsp; positive definiteness</div>
+  </div>
+
+  <p>You are also probably closely familiar with the formula at the top of this page. But that formula
+  is not <em>the</em> inner product — it is merely an example. The most ubiquitous one, I admit, but
+  still, the Euclidean product is just one of many.</p>
+
+  <p>In general, given a real vector space <span class="m">V</span>, an inner product is a two-variable
+  function taking a pair of vectors to a single real number, subject to the three properties above.
+  Nothing in that definition mentions coordinates, sums, or multiplication. Any function that satisfies
+  the three rules earns the name.</p>
+
+  <p>This is the pivot the whole article turns on. The definition is a <em>behavioural</em> spec, not a
+  formula. That leaves room for other functions — ones that measure similarity in ways
+  <span class="m">&Sigma; x<sub>i</sub> y<sub>i</sub></span> cannot — to still be inner products in good
+  standing. A kernel, when we finally name it, will be exactly such a function.</p>
+
+  <h3>Rule 1 &mdash; linearity</h3>
+
+  <div class="eq">
+    <div class="tex">\[ \langle a\mathbf{x} + b\mathbf{y}, \mathbf{z} \rangle \;=\; a\langle \mathbf{x}, \mathbf{z} \rangle + b\langle \mathbf{y}, \mathbf{z} \rangle \]</div>
+    <div class="where">mix first, then multiply &nbsp;&nbsp;=&nbsp;&nbsp; multiply first, then mix</div>
+  </div>
+
+  <p>The rule says two different orders of operation land on the same number. Rather than assert that,
+  we run both orders side by side and show every intermediate row. Set the scalars and the third vector
+  here &mdash; every panel below recomputes, as does the grid at the top of the page.</p>
+
+  <div class="sheet">
+    <table class="grid">
+      <tr>
+        <th class="gut">i</th>
+        <th class="pos">1</th><th class="pos">2</th><th class="pos">3</th>
+        <th class="pos">4</th><th class="pos">5</th>
+      </tr>
+      <tr>
+        <th class="gut">z</th>
+        <td><input class="cell" type="number" step="0.01" data-v="z" data-i="0" value="0.71"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="z" data-i="1" value="0.19"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="z" data-i="2" value="0.55"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="z" data-i="3" value="0.33"></td>
+        <td><input class="cell" type="number" step="0.01" data-v="z" data-i="4" value="0.88"></td>
+      </tr>
+    </table>
+    <div class="scalars">
+      <label>a <input type="number" step="0.1" id="sa" value="2.0"></label>
+      <label>b <input type="number" step="0.1" id="sb" value="-0.5"></label>
+    </div>
+  </div>
+
+  <p class="panel-label">Route A &mdash; mix the vectors first, then take one inner product</p>
+
+  <div class="sheet"><div id="rule1a"></div></div>
+
+  <p class="caption">Read it top to bottom. Scale <span class="m">x</span> by <span class="m">a</span>,
+  scale <span class="m">y</span> by <span class="m">b</span>, add those two rows to get the mixed vector
+  <span class="m">w</span>. Only then does <span class="m">z</span> enter, and only one inner product is
+  taken.</p>
+
+  <p class="panel-label">Route B &mdash; take two inner products first, then mix the scalars</p>
+
+  <div class="sheet"><div id="rule1b"></div></div>
+
+  <p class="caption">Here <span class="m">z</span> enters immediately, twice, against the original
+  vectors. Two inner products come out, and <span class="m">a</span> and <span class="m">b</span> are
+  applied at the very end &mdash; to two numbers, not to vectors.</p>
+
+  <div class="verdict" id="v1"></div>
+
+  <p>The two routes share no intermediate value. Route A's mixed row never appears in Route B; Route B's
+  pair of inner products never appears in Route A. They agree anyway, for every <span class="m">a</span>,
+  <span class="m">b</span>, and every vector you type. That is what linearity buys &mdash; permission to
+  push an inner product through a weighted sum, which is why derivations involving inner products are
+  free to rearrange themselves.</p>
+
+  <h3>Rule 2 &mdash; symmetry</h3>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle \;=\; \langle \mathbf{y}, \mathbf{x} \rangle \]</div>
+    <div class="where">the order of the arguments does not matter</div>
+  </div>
+
+  <p>Compute both directions column by column and the reason sits in the cells themselves.</p>
+
+  <div class="sheet"><div id="rule2"></div></div>
+
+  <div class="verdict" id="v2"></div>
+
+  <p class="caption">The two product rows are identical position by position, not merely equal in total,
+  because each cell is a product of two real numbers and real multiplication commutes. Symmetry here is
+  inherited from arithmetic &mdash; but it is still an <em>assumption</em> in the definition, and other
+  similarity functions have to earn it.</p>
+
+  <h3>Rule 3 &mdash; positive definiteness</h3>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{x} \rangle \ge 0 \qquad \text{and} \qquad \langle \mathbf{x}, \mathbf{x} \rangle = 0 \iff \mathbf{x} = 0 \]</div>
+    <div class="where">every vector agrees with itself, and only the zero vector agrees with itself by nothing</div>
+  </div>
+
+  <p>Pair <span class="m">x</span> with itself and every term becomes a square.</p>
+
+  <div class="sheet"><div id="rule3"></div></div>
+
+  <div class="controls">
+    <button type="button" onclick="preset('zero')">Empty x</button>
+    <button type="button" onclick="preset('neg')">Flip x negative</button>
+    <button type="button" onclick="preset('reset')">Reset</button>
+  </div>
+
+  <div class="verdict" id="v3"></div>
+
+  <p class="caption">Press <span class="m">Flip x negative</span>: every cell of
+  <span class="m">x</span> drops below zero and the squares do not care &mdash; the total is unchanged.
+  Press <span class="m">Empty x</span> and the total reaches zero, which is the only way it can get
+  there. That is the <span class="m">&hArr;</span> in the equation &mdash; a zero result forces a zero
+  vector, so the inner product can tell "nothing there" apart from "something there that cancels."</p>
+  <p class="note">A footnote worth carrying forward: because of symmetry, an inner product is also
+  linear in its <em>second</em> variable. Rule 1 is stated for the left slot only, and rule 2 hands you
+  the right slot for free.</p>
+
+  <h2>A second example: weights on the coordinates</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle \;=\; x_1 y_1 + 2 x_2 y_2 \]</div>
+    <div class="where tex">\( \mathbf{x} = (x_1, x_2), \quad \mathbf{y} = (y_1, y_2) \)</div>
+  </div>
+
+  <p>Two dimensions, and the second coordinate counts double. This is a proper inner product &mdash; it
+  satisfies all three rules &mdash; and it is emphatically not the Euclidean one. Checking linearity,
+  symmetry and positive definiteness by hand here is worth doing; it is not that hard.</p>
+
+  <p>The grid below computes it alongside the Euclidean product on the same two vectors, so the
+  disagreement is visible in a single column. The weight is editable: the definition asks for
+  <span class="m">2</span>, but try other values and watch which of the three rules survives.</p>
+
+  <div class="sheet">
+    <table class="grid">
+      <tr>
+        <th class="gut">i</th><th class="pos">1</th><th class="pos">2</th>
+      </tr>
+      <tr>
+        <th class="gut">x</th>
+        <td><input class="cell" type="number" step="0.1" data-v="x2" data-i="0" value="3"></td>
+        <td><input class="cell" type="number" step="0.1" data-v="x2" data-i="1" value="1"></td>
+      </tr>
+      <tr>
+        <th class="gut">y</th>
+        <td><input class="cell" type="number" step="0.1" data-v="y2" data-i="0" value="2"></td>
+        <td><input class="cell" type="number" step="0.1" data-v="y2" data-i="1" value="4"></td>
+      </tr>
+    </table>
+    <div class="scalars">
+      <label>weight on coordinate 2 &nbsp;<input type="number" step="0.5" id="sw" value="2"></label>
+    </div>
+  </div>
+
+  <div class="sheet"><div id="w2panel"></div></div>
+
+  <div class="verdict" id="vw"></div>
+
+  <p class="caption">Set the weight to <span class="m">0</span> and positive definiteness dies: the
+  vector <span class="m">(0, 1)</span> is not zero, yet it now agrees with itself by nothing, so the
+  function can no longer distinguish "empty" from "invisible to the weights." Set it negative and things
+  get worse &mdash; <span class="m">&#10216;x, x&#10217;</span> can be driven below zero. Every strictly
+  positive weight, however, gives a perfectly good inner product. There are infinitely many of these,
+  and the Euclidean one is just the case where all the weights happen to be <span class="m">1</span>.</p>
+
+  <h2>A bundle of examples: any symmetric positive definite matrix</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle_K \;=\; \mathbf{x}^T K \mathbf{y} \]</div>
+    <div class="where tex">\( K \in \mathbb{R}^{n \times n}, \quad K = K^T, \quad K \succ 0 \)</div>
+  </div>
+
+  <p>Back in <span class="m">&#8477;<sup>n</sup></span>, with <span class="m">n</span>-dimensional
+  vectors. If <span class="m">K</span> is a symmetric, positive definite
+  <span class="m">n &times; n</span> matrix, then the formula above is an inner product. Not one
+  example &mdash; a bundle of them, one for every admissible <span class="m">K</span>.</p>
+
+  <p>We drop to <span class="m">n = 3</span> so all nine entries of <span class="m">K</span> fit on
+  screen at once. Edit the upper triangle; the lower triangle mirrors automatically, because
+  <span class="m">K</span> has to stay symmetric.</p>
+
+  <div class="sheet">
+    <table class="grid">
+      <tr>
+        <th class="gut">&nbsp;</th><th class="pos">1</th><th class="pos">2</th><th class="pos">3</th>
+      </tr>
+      <tr>
+        <th class="gut">u</th>
+        <td><input class="cell" type="number" step="0.1" data-v="u" data-i="0" value="1"></td>
+        <td><input class="cell" type="number" step="0.1" data-v="u" data-i="1" value="2"></td>
+        <td><input class="cell" type="number" step="0.1" data-v="u" data-i="2" value="-1"></td>
+      </tr>
+      <tr>
+        <th class="gut">v</th>
+        <td><input class="cell" type="number" step="0.1" data-v="v" data-i="0" value="3"></td>
+        <td><input class="cell" type="number" step="0.1" data-v="v" data-i="1" value="-1"></td>
+        <td><input class="cell" type="number" step="0.1" data-v="v" data-i="2" value="2"></td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="panel-label">The matrix K &mdash; upper triangle editable, lower triangle mirrored</p>
+
+  <div class="sheet">
+    <table class="grid">
+      <tr>
+        <th class="gut">K</th><th class="pos">1</th><th class="pos">2</th><th class="pos">3</th>
+      </tr>
+      <tr>
+        <th class="gut">row 1</th>
+        <td><input class="cell" type="number" step="0.5" id="k00" value="2"></td>
+        <td><input class="cell" type="number" step="0.5" id="k01" value="-1"></td>
+        <td><input class="cell" type="number" step="0.5" id="k02" value="0"></td>
+      </tr>
+      <tr>
+        <th class="gut">row 2</th>
+        <td><div class="out mid" id="m10">&mdash;</div></td>
+        <td><input class="cell" type="number" step="0.5" id="k11" value="2"></td>
+        <td><input class="cell" type="number" step="0.5" id="k12" value="-1"></td>
+      </tr>
+      <tr>
+        <th class="gut">row 3</th>
+        <td><div class="out mid" id="m20">&mdash;</div></td>
+        <td><div class="out mid" id="m21">&mdash;</div></td>
+        <td><input class="cell" type="number" step="0.5" id="k22" value="2"></td>
+      </tr>
+    </table>
+    <div class="controls" style="margin:16px 0 0">
+      <button type="button" onclick="kpreset('I')">K = I</button>
+      <button type="button" onclick="kpreset('W')">K = diag(1, 2, 1)</button>
+      <button type="button" onclick="kpreset('T')">K = tridiagonal</button>
+      <button type="button" onclick="kpreset('BAD')">Break definiteness</button>
+    </div>
+  </div>
+
+  <p class="panel-label">Step 1 &mdash; K v, one row of K against v at a time</p>
+
+  <div class="sheet"><div id="kv"></div></div>
+
+  <p class="panel-label">Step 2 &mdash; u against the result</p>
+
+  <div class="sheet"><div id="ukv"></div></div>
+
+  <div class="verdict" id="vk"></div>
+
+  <p class="caption">Press <span class="m">K = I</span> and the whole apparatus collapses back to the
+  Euclidean product from the top of the page &mdash; the identity matrix weights every coordinate by
+  one and mixes nothing. Press <span class="m">K = diag(1, 2, 1)</span> and you get the weighted product
+  from the previous section, extended to three dimensions. Both are members of this bundle. What the
+  general <span class="m">K</span> adds is the off-diagonal entries, which let coordinate 1 and
+  coordinate 2 contribute <em>jointly</em> rather than separately.</p>
+
+  <p class="caption">That last point is the one to hold on to. Press <span class="m">Break
+  definiteness</span>: <span class="m">K</span> stays symmetric, the formula still returns a number, and
+  yet <span class="m">&#10216;u, u&#10217;<sub>K</sub></span> goes negative for some vectors, so it is
+  no longer an inner product. The two conditions on <span class="m">K</span> are not decoration. They
+  are precisely what earns the formula the name.</p>
+
+
+  <p>If <span class="m">K</span> is the identity matrix, <span class="m">&#10216;&middot;,&middot;&#10217;<sub>K</sub></span>
+  is the good old Euclidean product.</p>
+
+  <p>And in case you are wondering: it is not a coincidence that for matrices, symmetry and positive
+  definiteness are defined the way they are. But let us not get ahead of ourselves.</p>
+
+  <h2>What does all of this have to do with kernels?</h2>
+
+  <p class="lead">Taking inner products apart.</p>
+
+  <div class="eq">
+    <div class="tex">\[ \mathbf{x} \;=\; \sum_{i=1}^{n} x_i \mathbf{e}_i \]</div>
+    <div class="where tex">\( \mathbf{x}, \mathbf{e}_i \in \mathbb{R}^n, \quad x_i \in \mathbb{R} \)</div>
+  </div>
+
+  <p>Back to our good old friend, the <span class="m">n</span>-dimensional real vector space
+  <span class="m">&#8477;<sup>n</sup></span>, and select a basis
+  <span class="m">e<sub>1</sub>, e<sub>2</sub>, &hellip;, e<sub>n</sub></span>. Every vector is then a
+  weighted sum of basis vectors, and the weights are what we have been calling its coordinates all
+  along.</p>
+
+  <p>That sentence is easy to nod at and easy to skip past. So here it is as arithmetic, with
+  <span class="m">n = 5</span> and the standard basis: five rows that are almost entirely zeros,
+  scaled and stacked until they reproduce <span class="m">x</span> exactly.</p>
+
+  <p class="panel-label">Step 1 &mdash; the basis vectors themselves</p>
+
+  <div class="sheet"><div id="basisE"></div></div>
+
+  <p class="caption">Each <span class="m">e<sub>i</sub></span> carries a single one and nothing else.
+  They hold no information about <span class="m">x</span>; they are just the directions we agreed to
+  measure along.</p>
+
+  <p class="panel-label">Step 2 &mdash; scale each basis vector by the matching coordinate, then add
+  the rows</p>
+
+  <div class="sheet"><div id="basisScaled"></div></div>
+
+  <div class="verdict" id="vb"></div>
+
+  <p class="caption">Only one cell in each scaled row is non-zero, so the column sums cannot interfere
+  with one another. Add the five rows and <span class="m">x</span> comes back unchanged. The
+  decomposition is exact, not an approximation.</p>
+
+  <h3>The coordinates are themselves inner products</h3>
+
+  <div class="eq">
+    <div class="tex">\[ x_i \;=\; \langle \mathbf{x}, \mathbf{e}_i \rangle \]</div>
+    <div class="where">the coordinate is not stored anywhere &mdash; it is measured</div>
+  </div>
+
+  <p>This is the observation the rest of the article is built on. To find the coordinate
+  <span class="m">x<sub>i</sub></span>, you do not look it up. You take an inner product against
+  <span class="m">e<sub>i</sub></span>, and the zeros in <span class="m">e<sub>i</sub></span> discard
+  every other term.</p>
+
+  <div class="sheet"><div id="basisCoords"></div></div>
+
+  <p class="caption">The measured row is identical to <span class="m">x</span>, which is the whole
+  content of the claim. A vector's coordinates are what the inner product reports when you interrogate
+  it one direction at a time.</p>
+
+  <h3>Why it works: the basis is orthonormal</h3>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{e}_i, \mathbf{e}_j \rangle \;=\; \delta_{ij} \;=\; \begin{cases} 1 & i = j \\ 0 & i \neq j \end{cases} \]</div>
+    <div class="where">every pair of basis vectors, all 25 of them</div>
+  </div>
+
+  <p>Take the inner product of every basis vector with every other and lay the results out as a grid.</p>
+
+  <div class="sheet"><div id="basisGram"></div></div>
+
+  <p class="caption">Ones down the diagonal, zeros everywhere else &mdash; each direction agrees fully
+  with itself and not at all with any other. That is the property doing the work above: the off-diagonal
+  zeros are what let <span class="m">&#10216;x, e<sub>i</sub>&#10217;</span> isolate a single
+  coordinate.</p>
+
+  <p>Keep this grid in mind, because it is the first one we will break. Fill those off-diagonal cells
+  with something other than zero &mdash; let the directions overlap &mdash; and you get the matrix
+  <span class="m">K</span> from the previous section back again, which is the same thing as measuring
+  similarity differently. A kernel, it will turn out, is nothing more than a grid like this one
+  computed with a different rule.</p>
+
+
+  <h2>The basis inner products determine everything</h2>
+
+  <div class="eq">
+    <div class="tex">\[
+      \begin{aligned}
+      \langle \mathbf{x}, \mathbf{y} \rangle
+        &amp;= \left\langle \sum_{i=1}^{n} x_i \mathbf{e}_i, \ \sum_{j=1}^{n} y_j \mathbf{e}_j \right\rangle \\[8pt]
+        &amp;= \sum_{i=1}^{n} \sum_{j=1}^{n} x_i y_j \langle \mathbf{e}_i, \mathbf{e}_j \rangle.
+      \end{aligned}
+    \]</div>
+    <div class="where tex">\( \mathbf{x} = \sum_i x_i \mathbf{e}_i, \quad \mathbf{y} = \sum_j y_j \mathbf{e}_j \)</div>
+  </div>
+
+  <p>Every vector is a linear combination of the <span class="m">e<sub>i</sub></span>. And because an
+  inner product is linear in <em>both</em> variables &mdash; rule 1 for the left slot, rule 1 plus rule
+  2 for the right &mdash; the two sums can be pulled straight out through the brackets. What is left
+  behind is a double sum over pairs, in which the only thing the inner product still has to know is
+  <span class="m">&#10216;e<sub>i</sub>, e<sub>j</sub>&#10217;</span>.</p>
+
+  <p>So the inner products of the basis vectors determine the whole thing completely. Check it out.</p>
+
+  <div class="controls">
+    <button type="button" onclick="setBasis('ortho')" id="b-ortho">Orthonormal basis</button>
+    <button type="button" onclick="setBasis('overlap')" id="b-overlap">Overlapping basis</button>
+  </div>
+
+  <p class="panel-label">The coefficient grid &mdash; every product
+  <span class="m">x<sub>i</sub> y<sub>j</sub></span>, all 25 pairs</p>
+
+  <div class="sheet"><div id="expOuter"></div></div>
+
+  <p class="caption">Row <span class="m">i</span>, column <span class="m">j</span> holds
+  <span class="m">x<sub>i</sub> y<sub>j</sub></span>. Nothing about the basis has entered yet &mdash;
+  this grid is pure coefficient bookkeeping, and every one of its 25 cells is non-zero.</p>
+
+  <p class="panel-label">The basis grid &mdash;
+  <span class="m">&#10216;e<sub>i</sub>, e<sub>j</sub>&#10217;</span></p>
+
+  <div class="sheet"><div id="expGram"></div></div>
+
+  <p class="caption" id="gramCaption"></p>
+
+  <p class="panel-label">The terms &mdash;
+  <span class="m">x<sub>i</sub> y<sub>j</sub> &#10216;e<sub>i</sub>, e<sub>j</sub>&#10217;</span>,
+  with each row summed</p>
+
+  <div class="sheet"><div id="expTerms"></div></div>
+
+  <div class="verdict" id="ve"></div>
+
+  <p class="caption">Multiply the two grids cell by cell, add everything up, and the result is the
+  inner product &mdash; the same number the single-row grid at the top of this page produced. The
+  double sum is not a different calculation; it is the same calculation with its internals exposed.</p>
+
+  <h3>What the second button does</h3>
+
+  <p>Press <span class="m">Overlapping basis</span>. The coefficient grid does not move &mdash;
+  <span class="m">x</span> and <span class="m">y</span> are untouched. The basis grid fills in: the
+  directions now overlap, so <span class="m">&#10216;e<sub>1</sub>, e<sub>2</sub>&#10217;</span> is no
+  longer zero. Terms that were dead come alive, and the total changes.</p>
+
+  <p>Nothing illegal happened. The new grid is still symmetric and still positive definite, so all
+  three rules survive and this is still an inner product &mdash; a different one, with a different
+  notion of which vectors count as similar. This is the same object as the matrix
+  <span class="m">K</span> from earlier, arrived at from the other direction:
+  <span class="m">K<sub>ij</sub> = &#10216;e<sub>i</sub>, e<sub>j</sub>&#10217;</span>.</p>
+
+  <p>And now the promised payoff comes into view. To specify an inner product, you never needed the
+  basis vectors themselves &mdash; only the grid of pairwise numbers. Supply a valid grid and you have
+  supplied an inner product. That grid, computed by some rule that takes two objects and returns their
+  similarity, is what a kernel is.</p>
+
+
+  <h2>The kernel, as in the seed</h2>
+
+  <div class="eq">
+    <div class="tex">\[ K \;=\;
+      \begin{bmatrix}
+      \langle \mathbf{e}_1, \mathbf{e}_1 \rangle & \langle \mathbf{e}_1, \mathbf{e}_2 \rangle & \cdots & \langle \mathbf{e}_1, \mathbf{e}_n \rangle \\
+      \langle \mathbf{e}_2, \mathbf{e}_1 \rangle & \langle \mathbf{e}_2, \mathbf{e}_2 \rangle & \cdots & \langle \mathbf{e}_2, \mathbf{e}_n \rangle \\
+      \vdots & \vdots & \ddots & \vdots \\
+      \langle \mathbf{e}_n, \mathbf{e}_1 \rangle & \langle \mathbf{e}_n, \mathbf{e}_2 \rangle & \cdots & \langle \mathbf{e}_n, \mathbf{e}_n \rangle
+      \end{bmatrix} \]</div>
+    <div class="where">every pairwise basis inner product, arranged in a square</div>
+  </div>
+
+  <p>Arrange those numbers into a matrix and you have what is called the inner product's
+  <em>kernel</em> &mdash; as in the seed, the kernel of a nut, the thing at the centre from which the
+  rest grows. Not a coincidence of terminology. Everything the inner product does is contained in this
+  grid, and the vectors <span class="m">x</span> and <span class="m">y</span> are just the weights you
+  press against it.</p>
+
+  <p>We have already been staring at this matrix for two sections. Here it is under its own name, with
+  the numbers filled in, still switchable between the two bases.</p>
+
+  <div class="controls">
+    <button type="button" onclick="setBasis('ortho')" id="b2-ortho">Orthonormal basis</button>
+    <button type="button" onclick="setBasis('overlap')" id="b2-overlap">Overlapping basis</button>
+  </div>
+
+  <p class="panel-label">K &mdash; the kernel matrix of this inner product</p>
+
+  <div class="sheet"><div id="kerMat"></div></div>
+
+  <p class="caption" id="kerCaption"></p>
+
+  <p class="panel-label">Pressing x and y against it &mdash;
+  <span class="m">x<sup>T</sup> K y</span> in two steps</p>
+
+  <div class="sheet"><div id="kerSteps"></div></div>
+
+  <div class="verdict" id="vkm"></div>
+
+  <p>Three routes, one number. The single-row grid at the top of the page, the double sum over 25
+  pairs, and <span class="m">x<sup>T</sup>Ky</span> all agree, because they are the same arithmetic
+  written at three levels of magnification. That is worth pausing on: the matrix form is not a new
+  definition of the inner product. It is the inner product with its seed made explicit.</p>
+
+  <p>Read it in the other direction and the door opens. Hand me a square grid of numbers that is
+  symmetric and positive definite, and I can hand you back an inner product &mdash; without ever
+  telling you what the basis vectors were, or whether there were any. The grid is sufficient. The
+  vectors are optional.</p>
+
+
+  <h2>Rewriting it as matrix multiplication</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle \;=\; \mathbf{x}^T K \mathbf{y} \]</div>
+    <div class="where tex">\( \underbrace{\mathbf{x}^T}_{1 \times n} \ \underbrace{K}_{n \times n} \ \underbrace{\mathbf{y}}_{n \times 1} \ \longrightarrow \ 1 \times 1 \)</div>
+  </div>
+
+  <p>The kernel representation lets us do all kinds of useful things. The first is simply this: the
+  inner product becomes a chain of matrix multiplications. A row vector, a square matrix, a column
+  vector &mdash; the shapes line up, and what drops out the far end is a
+  <span class="m">1 &times; 1</span> object, which is a scalar wearing a matrix costume.</p>
+
+  <p>Written this way, a fact that was invisible in the summation notation becomes obvious: matrix
+  multiplication is associative, so you may bracket the chain either way.</p>
+
+  <div class="sheet">
+    <div class="shapes">
+      <span class="sh">x<sup>T</sup> <em>1&times;5</em></span>
+      <span class="shx">&times;</span>
+      <span class="sh">K <em>5&times;5</em></span>
+      <span class="shx">&times;</span>
+      <span class="sh">y <em>5&times;1</em></span>
+      <span class="shx">=</span>
+      <span class="sh res">&#10216;x,y&#10217; <em>1&times;1</em></span>
+    </div>
+  </div>
+
+  <p class="panel-label">Bracketing left &mdash;
+  <span class="m">(x<sup>T</sup>K) y</span></p>
+
+  <div class="sheet"><div id="mmLeft"></div></div>
+
+  <p class="caption">First <span class="m">x</span> sweeps across every column of
+  <span class="m">K</span>, producing a row vector of five numbers. Only then does
+  <span class="m">y</span> arrive, and it collapses that row to a scalar.</p>
+
+  <p class="panel-label">Bracketing right &mdash;
+  <span class="m">x<sup>T</sup> (K y)</span></p>
+
+  <div class="sheet"><div id="mmRight"></div></div>
+
+  <p class="caption">Here <span class="m">K</span> acts on <span class="m">y</span> first, producing a
+  column of five numbers, and <span class="m">x</span> collapses that.</p>
+
+  <div class="verdict" id="vmm"></div>
+
+  <p>The two intermediate vectors are different objects &mdash; compare the middle rows of the two
+  panels &mdash; and the final scalar is identical. This is associativity, and it is not a curiosity.
+  Choosing where to put the brackets is how you control the cost of a computation, and in the
+  attention machinery that closes this series, moving one pair of parentheses is the entire difference
+  between quadratic and linear time.</p>
+
+  <p>Something else is now visible. The vectors <span class="m">x</span> and <span class="m">y</span>
+  never touch each other in either route. They only ever touch <span class="m">K</span>. Everything
+  those two vectors know about their mutual similarity is routed through the kernel matrix, which is
+  exactly the sense in which the kernel is the seed of the whole operation.</p>
+
+
+  <h2>Reversing the arrow</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle_K \;:=\; \mathbf{x}^T K \mathbf{y} \]</div>
+    <div class="where">note the <span class="m">:=</span> &mdash; this is a definition, not a derivation</div>
+  </div>
+
+  <p>Think about what we now have on each side. The inner product is a bivariate function: feed it any
+  two vectors out of an uncountable continuum and it returns a number. The kernel is a matrix. A finite
+  set of values. A discrete object. <span class="m">n &times; n</span> numbers, and that is the whole
+  of it.</p>
+
+  <p>But hold on. We have seen <span class="m">x<sup>T</sup>Ky</span> before. Can we reverse our
+  thinking? Instead of obtaining the kernel <em>from</em> the inner product, what if we define the
+  inner product <em>in terms of</em> the kernel? For any matrix <span class="m">K</span>, we can define
+  the bivariate function above &mdash; and ask afterwards whether it deserves the name.</p>
+
+  <h3>Twenty-five numbers, unlimited questions</h3>
+
+  <p>The sampler below asks the function about pairs of vectors it has never seen. Nothing is stored
+  between samples except the matrix.</p>
+
+  <div class="controls">
+    <button type="button" onclick="sampleMore()">Ask it about a new pair</button>
+    <button type="button" onclick="sampleMore(5)">Ask five more</button>
+    <button type="button" onclick="resetSamples()">Clear</button>
+  </div>
+
+  <div class="sheet"><div id="sampleTable"></div></div>
+
+  <div class="verdict" id="vsample"></div>
+
+  <p class="caption">Keep pressing. The tally on the left climbs without limit; the number on the right
+  never moves. Every answer the function will ever give is already present in those
+  <span class="m">25</span> cells &mdash; the sampler is not consulting a lookup table of vector pairs,
+  because no such table exists. It is pressing new vectors against an old seed.</p>
+
+  <h3>Which matrices are allowed?</h3>
+
+  <div class="eq">
+    <div class="tex">\[ K = K^T \quad \text{and} \quad \mathbf{x}^T K \mathbf{x} > 0 \ \ \forall \mathbf{x} \neq 0 \]</div>
+    <div class="where">symmetry buys rule 2, positive definiteness buys rule 3, linearity comes free</div>
+  </div>
+
+  <p>Defining a function is free; earning the name is not. Rule 1 holds for
+  <em>any</em> <span class="m">K</span> whatsoever, because matrix multiplication distributes over
+  addition. The other two rules are exactly the two conditions on the matrix, which is the answer to
+  the question we deferred earlier &mdash; it is no coincidence that symmetry and positive definiteness
+  are defined for matrices the way they are. They are named after the properties they buy.</p>
+
+  <div class="controls">
+    <button type="button" onclick="setBasis('ortho')" id="b3-ortho">Identity</button>
+    <button type="button" onclick="setBasis('overlap')" id="b3-overlap">Overlapping</button>
+    <button type="button" onclick="setBasis('random')" id="b3-random">Roll a random symmetric K</button>
+  </div>
+
+  <div class="verdict" id="vadmit"></div>
+
+  <p class="caption">Roll the dice a few times. The random matrices are symmetric by construction, so
+  rule 2 always survives; positive definiteness is the fragile one, and roughly a third of rolls clear
+  it. When a roll fails, the function is still perfectly well defined &mdash; it still returns a number
+  for every pair of vectors &mdash; it simply is not an inner product. Note that the panels further up
+  the page recompute against whichever matrix is selected here.</p>
+
+  <p>So the arrow now runs the other way. We began with an inner product and extracted its seed. We can
+  instead start from the seed. Choose a valid grid of numbers, and an inner product comes into
+  existence, complete with all three rules, with nobody ever having named a basis or a vector space.</p>
+
+  <p>Which raises the question the rest of this series answers. If the grid is all that matters, why
+  should its entries have to come from vectors at all? Why not compute
+  <span class="m">K<sub>ij</sub></span> from a pair of sentences, or molecules, or photographs, using
+  any rule that yields a symmetric positive definite grid? Nothing above forbids it.</p>
+
+
+  <h2>Two sides of the same coin</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \{\text{inner products on } \mathbb{R}^n\} \;\longleftrightarrow\; \{n \times n \text{ symmetric positive definite matrices}\} \]</div>
+    <div class="where">a one-to-one correspondence, in both directions</div>
+  </div>
+
+  <p>Depending on the properties of <span class="m">K</span>, the function we just defined is an inner
+  product &mdash; and the condition is exactly the one the panel above tests. If
+  <span class="m">K</span> is symmetric and positive definite, then
+  <span class="m">&#10216;&middot;,&middot;&#10217;<sub>K</sub></span> is an inner product.</p>
+
+  <p>So kernels and inner products are two sides of the same coin. Mathematically speaking, the set of
+  inner products and the set of symmetric positive definite matrices are in one-to-one correspondence
+  with each other. Every inner product has exactly one kernel; every admissible kernel defines exactly
+  one inner product. Nothing is lost travelling in either direction, which is why we are allowed to
+  stop thinking about one and start thinking about the other.</p>
+
+  <p>But again, we are here to do machine learning. Why is this kernel thing useful for us?</p>
+
+  <h2>Kernels in machine learning</h2>
+
+  <p class="lead">A dream scenario in data science: linearly separable datasets.</p>
+
+  <div class="eq">
+    <div class="tex">\[ f(\mathbf{x}) \;=\; \langle \mathbf{w}, \mathbf{x} \rangle + b, \qquad \hat{y} = \operatorname{sign} f(\mathbf{x}) \]</div>
+    <div class="where">the decision boundary is the set where \( \langle \mathbf{w}, \mathbf{x} \rangle + b = 0 \)</div>
+  </div>
+
+  <p>Here is the situation every practitioner hopes for. Two classes, and a straight line that puts
+  all of one on one side and all of the other on the other. Nothing clever required.</p>
+
+  <p>Look closely at what the classifier actually computes, though. It takes an inner product. The
+  vector <span class="m">w</span> is a direction, and <span class="m">&#10216;w, x&#10217;</span> asks
+  how much each data point agrees with that direction. The entire decision rule is one similarity
+  measurement and a threshold.</p>
+
+  <div class="sheet">
+    <div id="sepPlot"></div>
+    <div class="scalars" style="margin-top:14px">
+      <label>angle of w &nbsp;<input type="range" id="sepAngle" min="0" max="180" step="1" value="47" style="width:150px"></label>
+      <label>offset b &nbsp;<input type="range" id="sepB" min="-3" max="3" step="0.05" value="-0.15" style="width:150px"></label>
+      <button type="button" onclick="sepBest()">Snap to a separating line</button>
+    </div>
+  </div>
+
+  <div class="verdict" id="vsep"></div>
+
+  <p class="caption">Drag either slider. The line is not drawn directly &mdash; it is the set of points
+  where the inner product with <span class="m">w</span> exactly cancels
+  <span class="m">b</span>. Rotating <span class="m">w</span> swings the boundary; changing
+  <span class="m">b</span> slides it. When every point lands on the correct side, the dataset is
+  linearly separable under that <span class="m">w</span>.</p>
+
+  <p class="panel-label">Three points, classified by hand</p>
+
+  <div class="sheet"><div id="sepHand"></div></div>
+
+  <p class="caption">Two multiplications, one addition, one sign. That is the whole classifier. The
+  ringed points in the plot are these three &mdash; one from each class, plus the point sitting closest
+  to the boundary, which is the first to change its mind as you move the sliders.</p>
+
+  <p>Hold on to the shape of this computation, because the next section breaks it. Everything here
+  rests on the data being separable by a straight line in the space it already lives in. When it is
+  not &mdash; and it usually is not &mdash; the inner product at the heart of
+  <span class="m">f</span> is precisely the piece we will replace.</p>
+
+
+  <p>Whatever falls on one side of the boundary is predicted yellow, whatever falls on the other is
+  predicted blue. All we want is a linearly separable dataset in Euclidean space, so that a decision
+  can be as simple as reading the sign of <span class="m">w<sup>T</sup>x</span> &mdash; the good old
+  Euclidean product of the data sample and the weight vector.</p>
+
+  <p>I have some news. The bad one is that this is almost never possible for real datasets. The good
+  one is that the entire field of machine learning is about finding &mdash; excuse me,
+  <em>learning</em> &mdash; feature transformations that make the data linearly separable.</p>
+
+  <p>Let me show you a simple example.</p>
+
+  <h2>Lifting the data instead of bending the boundary</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \varphi : x \mapsto (x, \ x^2 - 1) \]</div>
+    <div class="where tex">\( \varphi : \mathbb{R} \to \mathbb{R}^2 \)</div>
+  </div>
+
+  <p>Ten points on a line. The yellow ones sit in the middle, the blue ones at both ends. In one
+  dimension a linear boundary is a single threshold &mdash; one point on the line, everything below it
+  one class, everything above it the other. Try to find one.</p>
+
+  <p class="panel-label">Original &mdash; one dimension, one threshold to place</p>
+
+  <div class="sheet">
+    <div id="phi1d"></div>
+    <div class="scalars" style="margin-top:12px">
+      <label>threshold t &nbsp;<input type="range" id="phiT" min="-3.5" max="3.5" step="0.1" value="0" style="width:180px"></label>
+    </div>
+  </div>
+
+  <div class="verdict" id="vphi1"></div>
+
+  <p class="caption">Slide it anywhere. The best any threshold manages is seven out of ten, because
+  yellow is surrounded &mdash; a single cut cannot isolate a middle. No amount of learning helps here,
+  since the failure is in the shape of the space, not in the choice of parameters.</p>
+
+  <p class="panel-label">Transformed &mdash; each point lifted to
+  <span class="m">(x, x&sup2; &minus; 1)</span></p>
+
+  <div class="sheet">
+    <div id="phi2d"></div>
+    <div class="scalars" style="margin-top:12px">
+      <label>boundary height h &nbsp;<input type="range" id="phiH" min="-1.2" max="3" step="0.05" value="0" style="width:180px"></label>
+    </div>
+  </div>
+
+  <div class="verdict" id="vphi2"></div>
+
+  <p class="caption">The horizontal axis is unchanged &mdash; the points have not moved sideways. The
+  new second coordinate lifts the ends of the line and drops the middle below zero, and the data falls
+  onto a parabola. Now a straight line does separate them, and there is a whole interval of heights
+  that work.</p>
+
+  <p class="panel-label">The transformation, computed by hand</p>
+
+  <div class="sheet"><div id="phiHand"></div></div>
+
+  <p class="caption">One column per point. The third row is the new coordinate, and its sign already
+  is the classification &mdash; which is the entire trick. We did not find a cleverer boundary. We
+  gave the data a coordinate in which the obvious boundary works.</p>
+
+  <p>Notice what <span class="m">&varphi;</span> costs. It invented a coordinate that was not in the
+  data, and the classifier now operates in <span class="m">&#8477;<sup>2</sup></span> rather than
+  <span class="m">&#8477;</span>. For this example that is free. For the transformations that make
+  real data separable, the target space can be enormous &mdash; hundreds of dimensions, or infinitely
+  many &mdash; and writing down <span class="m">&varphi;(x)</span> becomes impossible long before the
+  classifier ever gets to use it.</p>
+
+  <p>Which is where everything we built earlier comes back. The classifier never needed
+  <span class="m">&varphi;(x)</span> itself. It only ever needed inner products
+  <span class="m">&#10216;&varphi;(x), &varphi;(y)&#10217;</span> &mdash; a grid of pairwise numbers.
+  And a rule that produces such a grid without constructing
+  <span class="m">&varphi;</span> is precisely a kernel.</p>
+
+
+  <h3>The model in the lifted space is as simple as it gets</h3>
+
+  <div class="eq">
+    <div class="tex">\[ \mathbf{w}^T \varphi(x), \qquad \mathbf{w} = (0, 1) \]</div>
+    <div class="where">one coordinate is read, the other is ignored entirely</div>
+  </div>
+
+  <p>The extremely simple linear model <span class="m">w<sup>T</sup>&varphi;(x)</span> with
+  <span class="m">w = (0, 1)</span> works perfectly on our toy dataset. There is nothing to tune. The
+  weight vector picks out the second coordinate and discards the first, and the sign of what remains
+  is the answer.</p>
+
+  <div class="sheet"><div id="liftModel"></div></div>
+
+  <div class="verdict" id="vlift"></div>
+
+  <p class="caption">The <span class="m">w&#8321;&varphi;&#8321;</span> row is entirely zeros &mdash;
+  that is the model declining to look at the original coordinate. All the work is done by the
+  coordinate <span class="m">&varphi;</span> invented, and the classifier itself stays a plain inner
+  product with a threshold.</p>
+
+  <h2>Inner products in the transformed space</h2>
+
+  <div class="eq">
+    <div class="tex">\[ k(\mathbf{x}, \mathbf{y}) \;=\; \varphi(\mathbf{x})^T \varphi(\mathbf{y}) \]</div>
+    <div class="where tex">\( \varphi : \mathbb{R}^n \to \mathbb{R}^m \)</div>
+  </div>
+
+  <p>In the general case, let <span class="m">&varphi; : &#8477;<sup>n</sup> &rarr;
+  &#8477;<sup>m</sup></span> be a data transformation that supposedly straightens out the dataset and
+  makes it linearly separable. How can we calculate the inner product of two transformed data points?
+  Simple. The transformed space is an ordinary Euclidean space, so we use the Euclidean product
+  there.</p>
+
+  <p>Pick any two points from the toy dataset and watch it happen.</p>
+
+  <div class="sheet">
+    <div class="scalars">
+      <label>x &nbsp;<select id="kSelI"></select></label>
+      <label>y &nbsp;<select id="kSelJ"></select></label>
+    </div>
+  </div>
+
+  <div class="sheet"><div id="kPair"></div></div>
+
+  <div class="verdict" id="vkpair"></div>
+
+  <p class="caption">Two coordinates in, one number out &mdash; the same collapse as the very first
+  grid on this page, only now the coordinates are manufactured rather than measured. Choosing two
+  points from the same end of the line gives a large positive number; choosing one from each end gives
+  something quite different.</p>
+
+  <p class="panel-label">Every pair at once &mdash; the kernel matrix of the toy dataset</p>
+
+  <div class="sheet"><div id="kGram"></div></div>
+
+  <p class="caption">One hundred cells, symmetric about the diagonal, each one an inner product of two
+  transformed points. This is the same kind of object as the basis grid from earlier in the article,
+  and it carries everything a classifier needs to know about this dataset. The points themselves are
+  no longer required.</p>
+
+  <p>Which sets up the question the next part answers. Computing this grid the honest way means
+  building <span class="m">&varphi;(x)</span> for every point and taking
+  <span class="m">m</span>-dimensional dot products &mdash; fine when
+  <span class="m">m = 2</span>, hopeless when <span class="m">m</span> is in the thousands, impossible
+  when it is infinite. But the grid is just a hundred numbers. If some formula could produce those
+  numbers directly from the original <span class="m">x</span> values, without ever constructing
+  <span class="m">&varphi;</span>, the size of the target space would stop mattering.</p>
+
+
+  <h2>What a kernel function means in machine learning</h2>
+
+  <div class="eq">
+    <div class="tex">\[ k(\mathbf{x}, \mathbf{y}) \;=\; \varphi(\mathbf{x})^T \varphi(\mathbf{y}) \]</div>
+    <div class="where">a function of two data points, not a matrix of basis pairs</div>
+  </div>
+
+  <p>This is what a kernel function means in machine learning, and it is slightly different from what
+  a kernel is in mathematics, though the two are closely related. The mathematical kernel was a
+  finished matrix of basis inner products. The machine learning kernel is a <em>rule</em> &mdash; give
+  it two data points and it returns their similarity in some transformed space. Evaluate that rule on
+  every pair in your dataset and you get back a matrix, at which point the two notions coincide.</p>
+
+  <p>Why is this beneficial? Because sometimes we can rewrite models entirely in terms of
+  <span class="m">k(x, y)</span>, which makes the problem easier to handle. When a model only ever
+  touches the data through inner products, we can swap in a kernel and never handle feature maps
+  explicitly at all.</p>
+
+  <h3>The radial basis function kernel</h3>
+
+  <div class="eq">
+    <div class="tex">\[ k(\mathbf{x}, \mathbf{y}) \;=\; e^{-\frac{\lVert \mathbf{x} - \mathbf{y} \rVert^2}{2\sigma^2}} \]</div>
+    <div class="where">no \( \varphi \) appears anywhere in this formula</div>
+  </div>
+
+  <p>The RBF kernel encodes an infinite-dimensional feature mapping which we would otherwise be unable
+  to handle. Note what the formula asks for: a distance, a division, an exponential. No feature vectors
+  are constructed, and none could be &mdash; the space they would live in has no finite coordinate
+  list.</p>
+
+  <p>Here it is evaluated on two points from the toy dataset, one step at a time.</p>
+
+  <div class="sheet">
+    <div class="scalars">
+      <label>x &nbsp;<select id="rSelI"></select></label>
+      <label>y &nbsp;<select id="rSelJ"></select></label>
+      <label>&sigma; &nbsp;<input type="number" step="0.25" id="rSigma" value="1.5" style="width:70px"></label>
+    </div>
+  </div>
+
+  <div class="verdict" id="vrbf"></div>
+
+  <p class="panel-label">Every pair &mdash; the RBF kernel matrix</p>
+
+  <div class="sheet"><div id="rGram"></div></div>
+
+  <p class="caption">Ones on the diagonal, because every point is at zero distance from itself, and a
+  smooth decay away from it. Shrink <span class="m">&sigma;</span> and the matrix approaches the
+  identity: every point becomes similar only to itself. Grow it and every cell approaches one:
+  everything resembles everything. The width is the only thing there is to choose.</p>
+
+  <h3>Where the infinite dimensions hide</h3>
+
+  <div class="eq">
+    <div class="tex">\[ e^{-\frac{(x-y)^2}{2\sigma^2}} \;=\; e^{-\frac{x^2}{2\sigma^2}} e^{-\frac{y^2}{2\sigma^2}} \sum_{j=0}^{\infty} \frac{1}{j!} \left( \frac{xy}{\sigma^2} \right)^{j} \]</div>
+    <div class="where">a sum with no last term &mdash; one feature per power of \( xy \)</div>
+  </div>
+
+  <p>Expand the exponential and the feature map falls out. Each term in the series is a product of
+  something depending only on <span class="m">x</span> and something depending only on
+  <span class="m">y</span>, which is exactly the shape of a coordinate in an inner product. The series
+  never terminates, so the feature vector has no last entry.</p>
+
+  <div class="sheet"><div id="rSeries"></div></div>
+
+  <div class="verdict" id="vseries"></div>
+
+  <p class="caption">The partial sums climb towards the value the closed form produced in one line.
+  Truncating at eight terms is already close; no truncation is ever exact. This is the trade the kernel
+  makes on our behalf &mdash; it returns the limit of an infinite computation at the cost of one
+  exponential.</p>
+
+
+  <h2>So: is a linear operation on the input a kernel?</h2>
+
+  <div class="eq">
+    <div class="tex">\[ \varphi(\mathbf{x}) = A\mathbf{x} \quad \Longrightarrow \quad k(\mathbf{x}, \mathbf{y}) = (A\mathbf{x})^T (A\mathbf{y}) = \mathbf{x}^T A^T A \mathbf{y} \]</div>
+    <div class="where">the feature map is the matrix; the kernel is \( A^T A \)</div>
+  </div>
+
+  <p>We can finally answer the question we started with. To the best of my understanding: yes. Linear
+  operations are feature maps, so they determine a kernel. If <span class="m">A</span> is the matrix
+  encoding the linear transformation, then its corresponding machine learning kernel is
+  <span class="m">k(x, y) = x<sup>T</sup>A<sup>T</sup>Ay</span>.</p>
+
+  <p>Worth working through in full, because it closes the loop on everything above &mdash; the feature
+  map route and the kernel route meet at the same number, and the matrix in the middle is the
+  <span class="m">K</span> we have been carrying since the beginning.</p>
+
+  <p>Below, <span class="m">A</span> maps three dimensions down to two. It is editable, as are the two
+  input vectors <span class="m">u</span> and <span class="m">v</span> from earlier in the page.</p>
+
+  <p class="panel-label">The feature map A &mdash; 2 &times; 3</p>
+
+  <div class="sheet">
+    <table class="grid">
+      <tr><th class="gut">A</th><th class="pos">1</th><th class="pos">2</th><th class="pos">3</th></tr>
+      <tr>
+        <th class="gut">row 1</th>
+        <td><input class="cell" type="number" step="0.5" id="a00" value="1"></td>
+        <td><input class="cell" type="number" step="0.5" id="a01" value="2"></td>
+        <td><input class="cell" type="number" step="0.5" id="a02" value="0"></td>
+      </tr>
+      <tr>
+        <th class="gut">row 2</th>
+        <td><input class="cell" type="number" step="0.5" id="a10" value="0"></td>
+        <td><input class="cell" type="number" step="0.5" id="a11" value="1"></td>
+        <td><input class="cell" type="number" step="0.5" id="a12" value="-1"></td>
+      </tr>
+    </table>
+    <div class="controls" style="margin:16px 0 0">
+      <button type="button" onclick="aPreset('tall')">Make A square and invertible</button>
+      <button type="button" onclick="aPreset('wide')">Back to 2 &times; 3</button>
+      <button type="button" onclick="aPreset('rankone')">Collapse A to rank 1</button>
+    </div>
+  </div>
+
+  <p class="panel-label">Route A &mdash; build the features, then take their inner product</p>
+
+  <div class="sheet"><div id="linFeat"></div></div>
+
+  <p class="caption">Each input is pushed through <span class="m">A</span> into the two-dimensional
+  feature space, and the Euclidean product is taken there. This is the honest route: the feature
+  vectors genuinely exist and you can read them off.</p>
+
+  <p class="panel-label">Route B &mdash; build the kernel matrix
+  <span class="m">K = A<sup>T</sup>A</span>, then never mention features again</p>
+
+  <div class="sheet"><div id="linK"></div></div>
+
+  <div class="sheet"><div id="linKSteps"></div></div>
+
+  <div class="verdict" id="vlin"></div>
+
+  <p class="caption">Same number, two routes. Route A lives in feature space and its intermediate
+  vectors have two entries. Route B never leaves the original three-dimensional space and its
+  intermediate vector has three. Neither knows the other exists.</p>
+
+  <h3>One caveat worth stating</h3>
+
+  <div class="eq">
+    <div class="tex">\[ \mathbf{x}^T A^T A \mathbf{x} = \lVert A\mathbf{x} \rVert^2 \;\ge\; 0 \]</div>
+    <div class="where">always positive semi-definite; strictly definite only when \( A \) has full column rank</div>
+  </div>
+
+  <p>The quantity <span class="m">x<sup>T</sup>A<sup>T</sup>Ax</span> is the squared length of
+  <span class="m">Ax</span>, so it can never be negative. That gives positive
+  <em>semi</em>-definiteness for free, whatever <span class="m">A</span> is. But strict positive
+  definiteness &mdash; the condition we needed for a genuine inner product &mdash; requires that
+  <span class="m">Ax = 0</span> only when <span class="m">x = 0</span>, and a matrix that maps three
+  dimensions into two must flatten some direction to nothing.</p>
+
+  <div class="verdict" id="vrank"></div>
+
+  <p class="caption">Press the buttons above and watch this panel. With the default
+  <span class="m">2 &times; 3</span> matrix there is a whole direction that
+  <span class="m">A</span> annihilates, so some non-zero vector has
+  <span class="m">&#10216;x, x&#10217;<sub>K</sub> = 0</span> and rule 3 fails by a hair. Make
+  <span class="m">A</span> square and invertible and definiteness is restored. This is the usual
+  situation in machine learning, where kernels are required to be positive semi-definite rather than
+  definite &mdash; the weaker condition is enough for the algorithms, and it is what dimension-reducing
+  feature maps can actually deliver.</p>
+
+  <h2>Where this leaves us</h2>
+
+  <p>We started with a formula most readers already knew and took it apart. The inner product turned
+  out to be a behavioural spec rather than a formula; its behaviour turned out to be captured entirely
+  by a grid of pairwise numbers; the grid turned out not to need any vectors behind it; and a rule
+  that produces such a grid directly turned out to be what machine learning calls a kernel.</p>
+
+  <p>Every classifier on this page did the same thing at bottom: measure similarity, then threshold
+  it. What changed from section to section was only which similarity was being measured &mdash; and
+  that choice, it turns out, is a choice of grid.</p>
+
+
+  <h3>What it cannot do</h3>
+
+  <div class="eq">
+    <div class="tex">\[ \langle \mathbf{x}, \mathbf{y} \rangle \;=\; x_1 y_1 + x_2 y_2 + \cdots + x_n y_n \]</div>
+    <div class="where tex">no \( x_1 x_2 \) &nbsp;&middot;&nbsp; no \( x_1^2 \) &nbsp;&middot;&nbsp; no term the data did not already hand over</div>
+  </div>
+
+  <p>Agreement measured this way is strictly linear. The inner product can only reward matching
+  coordinates as they are given to it. If the thing that makes two points similar is a <em>product</em>
+  of their coordinates rather than a coordinate itself — if similarity lives in
+  <span class="m">x<sub>1</sub>x<sub>2</sub></span> and not in <span class="m">x<sub>1</sub></span> or
+  <span class="m">x<sub>2</sub></span> — then no amount of editing the grid above will surface it. The
+  grid has five columns, and the pattern is not in any of them.</p>
+
+  <p>The next section takes that failure seriously, with four points in two dimensions that no straight
+  line can separate. The fix will look like cheating: we add columns that were never in the data. And the
+  section after that shows you can get the answer without ever adding them — which is the moment the word
+  <em>kernel</em> becomes necessary.</p>
+
+  <footer>Next: the Gram matrix &mdash; every pair, all 25 cells.</footer>
+
 </div>
-<h2>How to think about any counting problem</h2><div class="story plan" id="plan-story" data-n="7" data-cur="0"><div class="shead">The counting plan: the same questions for every problem</div><div class="frames"><section class="frame on" data-i="0" aria-label="Step 1 of 7"><div class="fstep">Step 1 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn on">What am I making?</div><div class="fa">↓</div><div class="fn">Build it one decision at a time</div><div class="fa">↓</div><div class="fn">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><span class="chips"><span class="chip ">Ana</span><span class="chip ">Ben</span><span class="chip ">Cy</span><span class="chip ">Dot</span></span><div class="bigline ">one answer: Ana and Cy</div></div><div class="ex-say">A finished answer is a <b>pair of helpers</b>.</div></div></div></div><div class="say"><p>Every counting problem asks you to <b>make</b> something: an outfit, a number, a line of people, a hand of cards. Say out loud what one finished thing looks like.</p></div><div class="ask"><b>Ask him:</b> Show me one example of the thing we're counting.</div></section><section class="frame" data-i="1" aria-label="Step 2 of 7"><div class="fstep">Step 2 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn on">Build it one decision at a time</div><div class="fa">↓</div><div class="fn">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="slots"><div class="slot "><div class="sl">1st helper</div><div class="sb"></div><div class="sc">?</div></div><div class="op">×</div><div class="slot "><div class="sl">2nd helper</div><div class="sb"></div><div class="sc">?</div></div></div><div class="ex-say">Two decisions: pick one helper, then pick another.</div></div></div></div><div class="say"><p>Break making it into <b>decisions</b>, one after another: first the shirt, then the pants; first digit, then second digit. Draw one box (a <b>slot</b>) for each decision.</p></div><div class="ask"><b>Ask him:</b> What's the first decision? What's the next one?</div></section><section class="frame" data-i="2" aria-label="Step 3 of 7"><div class="fstep">Step 3 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn on">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><div class="slots"><div class="slot on"><div class="sl">1st</div><div class="sb"><span class="chips"><span class="chip pick">Ana</span><span class="chip ">Ben</span><span class="chip ">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">4</div></div><div class="op">×</div><div class="slot on"><div class="sl">2nd</div><div class="sb"><span class="chips"><span class="chip used">Ana</span><span class="chip ">Ben</span><span class="chip ">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">3</div></div></div><div class="slots"><div class="slot on"><div class="sl">1st</div><div class="sb"><span class="chips"><span class="chip ">Ana</span><span class="chip ">Ben</span><span class="chip pick">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">4</div></div><div class="op">×</div><div class="slot on"><div class="sl">2nd</div><div class="sb"><span class="chips"><span class="chip ">Ana</span><span class="chip ">Ben</span><span class="chip used">Cy</span><span class="chip ">Dot</span></span></div><div class="sc">3</div></div></div></div><div class="ex-say">If Ana goes first, Ben, Cy or Dot can be second. If Cy goes first, Ana, Ben or Dot. <b>Different kids, always 3.</b></div></div></div></div><div class="say"><p>Count the options for each slot. Then check the key question: <b>does every earlier choice leave the same number of options?</b> The options can be different. Only the <i>number</i> has to stay the same. If it doesn't, change the order of your decisions, or split into cases.</p></div><div class="ask"><b>Ask him:</b> If you picked something else first, would this slot still have the same number of options?</div></section><section class="frame" data-i="3" aria-label="Step 4 of 7"><div class="fstep">Step 4 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn on">Multiply the option counts</div><div class="fa">↓</div><div class="fn">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><div class="slots"><div class="slot done"><div class="sl">1st</div><div class="sb"></div><div class="sc">4</div></div><div class="op">×</div><div class="slot done"><div class="sl">2nd</div><div class="sb"></div><div class="sc">3</div></div><div class="op">=</div><div class="result">12</div></div><div class="pscroll"><div class="pgrid" style="--cols:4"><div class="ph corner"><span>1st pick ↓</span><span>2nd pick →</span></div><div class="ph">A</div><div class="ph">B</div><div class="ph">C</div><div class="ph">D</div><div class="ph rh">A</div><div class="pc x"><b>×</b></div><div class="pc plain"><b>AB</b></div><div class="pc plain"><b>AC</b></div><div class="pc plain"><b>AD</b></div><div class="ph rh">B</div><div class="pc plain"><b>BA</b></div><div class="pc x"><b>×</b></div><div class="pc plain"><b>BC</b></div><div class="pc plain"><b>BD</b></div><div class="ph rh">C</div><div class="pc plain"><b>CA</b></div><div class="pc plain"><b>CB</b></div><div class="pc x"><b>×</b></div><div class="pc plain"><b>CD</b></div><div class="ph rh">D</div><div class="pc plain"><b>DA</b></div><div class="pc plain"><b>DB</b></div><div class="pc plain"><b>DC</b></div><div class="pc x"><b>×</b></div></div></div></div><div class="ex-say">4 × 3 = 12. The grid shows all 12 picks: first helper down the side, second across the top, with the diagonal crossed out.</div></div></div></div><div class="say"><p>If yes, <b>multiply</b> the slot counts. That's the rule of product: every choice in one slot starts its own equal-sized group of choices in the next.</p></div><div class="ask"><b>Ask him:</b> Why multiply and not add?</div></section><section class="frame" data-i="4" aria-label="Step 5 of 7"><div class="fstep">Step 5 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn past">Multiply the option counts</div><div class="fa">↓</div><div class="fn on">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><div class="pscroll"><div class="pgrid" style="--cols:4"><div class="ph corner"><span>1st pick ↓</span><span>2nd pick →</span></div><div class="ph">A</div><div class="ph">B</div><div class="ph">C</div><div class="ph">D</div><div class="ph rh">A</div><div class="pc x"><b>×</b></div><div class="pc keep hl"><b>AB</b></div><div class="pc keep"><b>AC</b></div><div class="pc keep"><b>AD</b></div><div class="ph rh">B</div><div class="pc twin hl"><b>BA</b></div><div class="pc x"><b>×</b></div><div class="pc keep"><b>BC</b></div><div class="pc keep"><b>BD</b></div><div class="ph rh">C</div><div class="pc twin"><b>CA</b></div><div class="pc twin"><b>CB</b></div><div class="pc x"><b>×</b></div><div class="pc keep"><b>CD</b></div><div class="ph rh">D</div><div class="pc twin"><b>DA</b></div><div class="pc twin"><b>DB</b></div><div class="pc twin"><b>DC</b></div><div class="pc x"><b>×</b></div></div></div><div class="bigline sm">AB and BA: the same two helpers!</div></div><div class="ex-say">Picking Ana then Ben gives the same pair as Ben then Ana. Every pair was built <b>twice</b>. (A captain and a vice-captain would have no twins: those are different jobs.)</div></div></div></div><div class="say"><p>Now look for <b>twins</b>: did your process build the same final thing in more than one way? That happens when things are identical (two L's), when order doesn't matter (a handshake, a team, a hand of cards), or when whole groups are interchangeable.</p></div><div class="ask"><b>Ask him:</b> Could I get this exact same answer by making my choices in a different order?</div></section><section class="frame" data-i="5" aria-label="Step 6 of 7"><div class="fstep">Step 6 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn past">Multiply the option counts</div><div class="fa">↓</div><div class="fn past">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn on">Divide by how many times</div><div class="fa">↓</div><div class="fn">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="slots"><div class="slot done"><div class="sl">ordered picks</div><div class="sb"></div><div class="sc">12</div></div><div class="op">÷</div><div class="slot on"><div class="sl">copies of each pair</div><div class="sb"></div><div class="sc">2</div></div><div class="op">=</div><div class="result">6</div></div><div class="ex-say">Each pair appeared exactly 2 times, so 12 ÷ 2 = 6 pairs.</div></div></div></div><div class="say"><p>If every final thing was built the same number of times, <b>divide</b> by that number. Two orders for a pair: divide by 2. Three identical letters: divide by 3! = 6. (If only <i>some</i> things were counted twice, take those extras away instead.)</p></div><div class="ask"><b>Ask him:</b> How many times did we build each one?</div></section><section class="frame" data-i="6" aria-label="Step 7 of 7"><div class="fstep">Step 7 of 7</div><div class="vis"><div class="pf plan"><div class="pf-flow"><div class="flow"><div class="fn past">What am I making?</div><div class="fa">↓</div><div class="fn past">Build it one decision at a time</div><div class="fa">↓</div><div class="fn past">Same number of options after every earlier choice?</div><div class="fa">↓</div><div class="fn past">Multiply the option counts</div><div class="fa">↓</div><div class="fn past">Did I build any thing more than once?</div><div class="fa">↓</div><div class="fn past">Divide by how many times</div><div class="fa">↓</div><div class="fn on">Check with a small case you can list</div></div></div><div class="pf-main"><div class="pf-tag">Example: choose 2 helpers from Ana, Ben, Cy, Dot</div><div class="vstack"><span class="chips"><span class="chip ">Ana + Ben</span><span class="chip ">Ana + Cy</span><span class="chip ">Ana + Dot</span><span class="chip ">Ben + Cy</span><span class="chip ">Ben + Dot</span><span class="chip ">Cy + Dot</span></span><div class="bigline sm">6 pairs ✓</div></div><div class="ex-say">List every pair by hand, holding the first name fixed: exactly 6. The method was right.</div></div></div></div><div class="say"><p>Finally <b>check on a small case</b> you can list by hand. If the method gives the right count for the small case, trust it for the big one.</p></div><div class="ask"><b>Ask him:</b> Can you make a tiny version of this problem and list every answer?</div></section></div><div class="snav"><button type="button" class="sbtn" data-prev disabled aria-label="Previous step">← Back</button><span class="sdots"><button type="button" class="sdot on" data-go="0" aria-label="Go to step 1"></button><button type="button" class="sdot" data-go="1" aria-label="Go to step 2"></button><button type="button" class="sdot" data-go="2" aria-label="Go to step 3"></button><button type="button" class="sdot" data-go="3" aria-label="Go to step 4"></button><button type="button" class="sdot" data-go="4" aria-label="Go to step 5"></button><button type="button" class="sdot" data-go="5" aria-label="Go to step 6"></button><button type="button" class="sdot" data-go="6" aria-label="Go to step 7"></button></span><button type="button" class="sbtn primary" data-next aria-label="Next step">Next step →</button><button type="button" class="sbtn ghost" data-all aria-pressed="false">Show all steps</button></div></div>
-<h2>How grading works</h2>
-<p>Each problem is split into a few steps. Write your method in the work area, put the result in the answer box and press <b>Check step</b>.</p>
-<ul><li>A wrong answer gets a nudge, a question to ask yourself. Nudges get more specific with each try.</li>
-<li>You get three tries and then one final attempt. If that misses too, the step's answer is shown and you carry on with the next step yourself.</li>
-<li><b>Hint for this step</b> opens a hint only when you press it. It doesn't use a try, but it is recorded.</li>
-<li><b>Submit question</b> prints how each step went and unlocks the checked answer once every step is closed.</li></ul>
-<h2>The pen</h2>
-<p>Press <b>Pen</b> (or the P key) to draw on any page while explaining. On the notes page the ink sticks to the text as you scroll, and a finger scrolls while a stylus or mouse draws. On the lesson and practice pages the ink is kept separately for each problem. Nothing is saved when the tab closes.</p>
-</main><div class="pen-ui"><button id="pen-toggle" type="button" aria-pressed="false" aria-label="Pen: draw on the page (P)" title="Pen (P)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14l1-4 8-8 3 3-8 8z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Pen</button><div id="pen-bar" role="toolbar" aria-label="Pen tools" hidden><div class="row"><button type="button" data-tool="pen" aria-pressed="true" aria-label="Pen">Pen</button><button type="button" data-tool="marker" aria-pressed="false" aria-label="Marker">Marker</button><button type="button" data-tool="line" aria-pressed="false" aria-label="Line">Line</button><button type="button" data-tool="box" aria-pressed="false" aria-label="Box">Box</button><button type="button" data-tool="eraser" aria-pressed="false" aria-label="Eraser">Eraser</button></div><div class="row"><button type="button" class="sw" data-color="#1b3358" aria-pressed="true" aria-label="navy ink"><i style="background:#1b3358"></i></button><button type="button" class="sw" data-color="#b8322a" aria-pressed="false" aria-label="red ink"><i style="background:#b8322a"></i></button><button type="button" class="sw" data-color="#2e7d5b" aria-pressed="false" aria-label="green ink"><i style="background:#2e7d5b"></i></button><button type="button" class="sw" data-color="#c98a12" aria-pressed="false" aria-label="amber ink"><i style="background:#c98a12"></i></button><button type="button" class="nib" data-width="fine" aria-pressed="false" aria-label="fine nib"><i style="height:2px"></i></button><button type="button" class="nib" data-width="medium" aria-pressed="true" aria-label="medium nib"><i style="height:4px"></i></button><button type="button" class="nib" data-width="bold" aria-pressed="false" aria-label="bold nib"><i style="height:8px"></i></button></div><div class="row"><button type="button" data-act="undo" aria-label="Undo (Ctrl+Z)">Undo</button><button type="button" data-act="redo" aria-label="Redo (Ctrl+Shift+Z)">Redo</button><button type="button" data-act="clear" aria-label="Clear all ink">Clear</button><button type="button" data-act="export" aria-label="Export ink as PNG">PNG</button><button type="button" data-act="stylus" aria-label="Stylus only: ignore touch" aria-pressed="false">Stylus only</button><button type="button" data-act="close" aria-label="Turn pen off (Esc)">Done</button></div></div><div id="pen-toast" role="status" aria-live="polite"></div></div><canvas id="ink-base" class="ink" aria-hidden="true"></canvas><canvas id="ink-live" class="ink" aria-hidden="true"></canvas><script>/* ---------- Teaching pen ----------
-   Two viewport-sized canvases: #ink-base holds finished strokes and is never touched while a stroke is in
-   progress; #ink-live holds only the stroke being drawn, and only new segments are appended each frame.
-   Anchoring: data-pen-mode="page" stores points in document coordinates and re-renders the base layer with a
-   translate on scroll; "viewport" stores viewport coordinates and swallows scrolling while the pen is on. */
-(function () {
-  var root = document.documentElement;
-  var MODE = root.getAttribute('data-pen-mode') === 'viewport' ? 'viewport' : 'page';
-  var DPR = Math.min(2, window.devicePixelRatio || 1);
-  var WIDTHS = { fine: 1.6, medium: 3.2, bold: 6.5 };
-  function $id(id) { return document.getElementById(id); }
 
-  var base = $id('ink-base'), live = $id('ink-live'), bar = $id('pen-bar'), btn = $id('pen-toggle'), toast = $id('pen-toast');
-  var bctx = base.getContext('2d'), lctx = live.getContext('2d');
-
-  var S = { on: false, tool: 'pen', color: '#1b3358', width: 'medium', stylusOnly: false };
-  var strokes = [], undoStack = [], redoStack = [];
-  var cur = null, pending = false, eraseBefore = null, vw = 0, vh = 0;
-  var stats = { framesWhileDrawing: 0, oldStrokesRedrawnWhileDrawing: 0, baseRenders: 0, commits: 0,
-                touchIgnored: 0, segmentsDrawn: 0, lastExportBytes: 0 };
-
-  function offset() { return MODE === 'page' ? { x: window.scrollX || 0, y: window.scrollY || 0 } : { x: 0, y: 0 }; }
-  function toLocal(e) { var o = offset(); return { x: e.clientX + o.x, y: e.clientY + o.y }; }
-
-  function resize() {
-    vw = window.innerWidth; vh = window.innerHeight;
-    [base, live].forEach(function (c) {
-      c.width = Math.round(vw * DPR); c.height = Math.round(vh * DPR);
-      c.style.width = vw + 'px'; c.style.height = vh + 'px';
-    });
-    renderBase();
-  }
-
-  function setupCtx(ctx) {
-    var o = offset();
-    ctx.setTransform(DPR, 0, 0, DPR, -o.x * DPR, -o.y * DPR);
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  }
-
-  function bbox(s) {
-    if (s.bb) return s.bb;
-    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    s.pts.forEach(function (p) { if (p.x < x0) x0 = p.x; if (p.y < y0) y0 = p.y; if (p.x > x1) x1 = p.x; if (p.y > y1) y1 = p.y; });
-    var pad = (s.w || 3) * 2 + 2;
-    return (s.bb = { x0: x0 - pad, y0: y0 - pad, x1: x1 + pad, y1: y1 + pad });
-  }
-  function visible(s) {
-    var b = bbox(s), o = offset();
-    return b.x1 >= o.x && b.x0 <= o.x + vw && b.y1 >= o.y && b.y0 <= o.y + vh;
-  }
-
-  function mid(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
-
-  /* one smoothed segment k: from mid(k-1,k) to mid(k,k+1), control point k; tapered pen width */
-  function segment(ctx, p, k) {
-    var a = k === 0 ? p[0] : mid(p[k - 1], p[k]), b = mid(p[k], p[k + 1]);
-    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.quadraticCurveTo(p[k].x, p[k].y, b.x, b.y);
-    ctx.lineWidth = p[k].w; ctx.stroke(); stats.segmentsDrawn++;
-  }
-  function tail(ctx, p) {
-    var n = p.length; if (n < 2) return;
-    var a = mid(p[n - 2], p[n - 1]);
-    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(p[n - 1].x, p[n - 1].y); ctx.lineWidth = p[n - 1].w; ctx.stroke();
-  }
-  function dot(ctx, s) { var p = s.pts[0]; ctx.beginPath(); ctx.arc(p.x, p.y, s.w / 2, 0, Math.PI * 2); ctx.fillStyle = s.color; ctx.fill(); }
-
-  function drawStroke(ctx, s) {
-    ctx.save();
-    ctx.strokeStyle = s.color;
-    var p = s.pts;
-    if (s.tool === 'box') {
-      ctx.lineWidth = s.w; ctx.strokeRect(Math.min(p[0].x, p[1].x), Math.min(p[0].y, p[1].y), Math.abs(p[1].x - p[0].x), Math.abs(p[1].y - p[0].y));
-    } else if (s.tool === 'line' || s.straight) {
-      if (s.tool === 'marker') ctx.globalAlpha = 0.35;
-      ctx.lineWidth = s.w; ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y); ctx.lineTo(p[p.length - 1].x, p[p.length - 1].y); ctx.stroke();
-    } else if (p.length === 1) {
-      if (s.tool === 'marker') ctx.globalAlpha = 0.35;
-      dot(ctx, s);
-    } else if (s.tool === 'marker') {
-      /* one path, one stroke(), so overlaps inside the stroke don't darken */
-      ctx.globalAlpha = 0.35; ctx.lineWidth = s.w; ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y);
-      for (var k = 1; k < p.length - 1; k++) { var m = mid(p[k], p[k + 1]); ctx.quadraticCurveTo(p[k].x, p[k].y, m.x, m.y); }
-      ctx.lineTo(p[p.length - 1].x, p[p.length - 1].y); ctx.stroke();
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    if (typeof renderMathInElement === 'function') {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: '\\[', right: '\\]', display: true },
+          { left: '\\(', right: '\\)', display: false }
+        ],
+        throwOnError: false
+      });
     } else {
-      for (var j = 0; j < p.length - 1; j++) segment(ctx, p, j);
-      tail(ctx, p);
-    }
-    ctx.restore();
-  }
-
-  function renderBase() {
-    stats.baseRenders++;
-    bctx.setTransform(1, 0, 0, 1, 0, 0); bctx.clearRect(0, 0, base.width, base.height);
-    setupCtx(bctx);
-    for (var i = 0; i < strokes.length; i++) if (visible(strokes[i])) {
-      drawStroke(bctx, strokes[i]);
-      if (cur) stats.oldStrokesRedrawnWhileDrawing++;
-    }
-  }
-  function clearLive() { lctx.setTransform(1, 0, 0, 1, 0, 0); lctx.clearRect(0, 0, live.width, live.height); }
-
-  /* ---- per-frame flush: cost proportional to new points only ---- */
-  function schedule() { if (!pending) { pending = true; requestAnimationFrame(flush); } }
-  function flush() {
-    pending = false;
-    if (!cur) return;
-    stats.framesWhileDrawing++;
-    setupCtx(lctx);
-    lctx.strokeStyle = cur.color;
-    var p = cur.pts;
-    if (cur.tool === 'line' || cur.tool === 'box' || cur.straight) {
-      clearLive(); setupCtx(lctx);                 /* preview shape: constant cost */
-      var shape = { tool: cur.tool, color: cur.color, w: cur.w, straight: cur.straight, pts: [p[0], p[p.length - 1]] };
-      if (cur.tool === 'marker') { lctx.save(); drawStroke(lctx, { tool: 'line', color: cur.color, w: cur.w, pts: shape.pts }); lctx.restore(); }
-      else drawStroke(lctx, shape);
-      return;
-    }
-    if (cur.tool === 'marker') lctx.lineWidth = cur.w;
-    while (cur.drawn < p.length - 1) {
-      var k = cur.drawn;
-      if (cur.tool === 'marker') {
-        var a = k === 0 ? p[0] : mid(p[k - 1], p[k]), b = mid(p[k], p[k + 1]);
-        lctx.beginPath(); lctx.moveTo(a.x, a.y); lctx.quadraticCurveTo(p[k].x, p[k].y, b.x, b.y); lctx.stroke(); stats.segmentsDrawn++;
-      } else segment(lctx, p, k);
-      cur.drawn++;
-    }
-  }
-
-  function snapshot() { undoStack.push(strokes.slice()); if (undoStack.length > 200) undoStack.shift(); redoStack.length = 0; }
-
-  function commit() {
-    var s = cur; cur = null;
-    if (s.tool === 'line' || s.tool === 'box' || s.straight) s.pts = [s.pts[0], s.pts[s.pts.length - 1]];
-    delete s.drawn;
-    snapshot(); strokes.push(s); stats.commits++;
-    setupCtx(bctx); drawStroke(bctx, s);          /* drawn once onto the committed layer */
-    clearLive(); live.style.opacity = '';
-  }
-
-  /* ---- eraser: removes whole strokes near the pointer ---- */
-  function distSeg(p, a, b) {
-    var dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy, t = L ? ((p.x - a.x) * dx + (p.y - a.y) * dy) / L : 0;
-    t = Math.max(0, Math.min(1, t)); var x = a.x + t * dx - p.x, y = a.y + t * dy - p.y; return Math.sqrt(x * x + y * y);
-  }
-  function hits(s, q, r) {
-    var b = bbox(s); if (q.x < b.x0 - r || q.x > b.x1 + r || q.y < b.y0 - r || q.y > b.y1 + r) return false;
-    var p = s.pts;
-    if (s.tool === 'box') {
-      var c = [p[0], { x: p[1].x, y: p[0].y }, p[1], { x: p[0].x, y: p[1].y }];
-      for (var i = 0; i < 4; i++) if (distSeg(q, c[i], c[(i + 1) % 4]) < r + s.w / 2) return true;
-      return false;
-    }
-    if (p.length === 1) return Math.hypot(q.x - p[0].x, q.y - p[0].y) < r + s.w / 2;
-    for (var j = 0; j < p.length - 1; j++) if (distSeg(q, p[j], p[j + 1]) < r + s.w / 2) return true;
-    return false;
-  }
-  function eraseAt(q) {
-    var before = strokes.length;
-    strokes = strokes.filter(function (s) { return !hits(s, q, 10); });
-    if (strokes.length !== before) renderBase();
-  }
-
-  /* ---- pointer handling ---- */
-  function onDown(e) {
-    if (!S.on) return;
-    if (e.pointerType === 'touch' && (S.stylusOnly || MODE === 'page')) { stats.touchIgnored++; return; }
-    if (e.button !== undefined && e.button > 0) return;
-    e.preventDefault();
-    try { live.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
-    var q = toLocal(e);
-    if (S.tool === 'eraser') { eraseBefore = strokes.slice(); cur = { tool: 'eraser', pts: [q] }; eraseAt(q); return; }
-    var w = WIDTHS[S.width] * (S.tool === 'marker' ? 4 : 1);
-    q.w = w; q.t = e.timeStamp || 0;
-    cur = { tool: S.tool, color: S.color, w: w, pts: [q], drawn: 0, straight: false };
-    if (S.tool === 'marker') live.style.opacity = '0.35';
-    schedule();
-  }
-  function onMove(e) {
-    if (!cur) return;
-    var evs = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
-    if (!evs.length) evs = [e];
-    if (cur.tool === 'eraser') { for (var i = 0; i < evs.length; i++) eraseAt(toLocal(evs[i])); return; }
-    if ((cur.tool === 'pen' || cur.tool === 'marker') && e.shiftKey) cur.straight = true;
-    for (var j = 0; j < evs.length; j++) {
-      var q = toLocal(evs[j]), last = cur.pts[cur.pts.length - 1];
-      var d = Math.hypot(q.x - last.x, q.y - last.y); if (d < 0.6) continue;
-      q.t = evs[j].timeStamp || last.t + 8;
-      if (cur.tool === 'pen') {
-        var dt = Math.max(1, q.t - last.t), v = d / dt;
-        var target = cur.w * Math.max(0.45, Math.min(1.25, 1.25 - 0.32 * v));
-        q.w = last.w * 0.72 + target * 0.28;
-      } else q.w = cur.w;
-      cur.pts.push(q);
-    }
-    schedule();
-  }
-  function onUp() {
-    if (!cur) return;
-    if (cur.tool === 'eraser') {
-      cur = null;
-      if (eraseBefore && eraseBefore.length !== strokes.length) { undoStack.push(eraseBefore); redoStack.length = 0; }
-      eraseBefore = null; return;
-    }
-    flush(); commit();
-  }
-
-  live.addEventListener('pointerdown', onDown);
-  live.addEventListener('pointermove', onMove);
-  live.addEventListener('pointerup', onUp);
-  live.addEventListener('pointercancel', onUp);
-  live.addEventListener('wheel', function (e) { if (S.on && MODE === 'viewport') e.preventDefault(); }, { passive: false });
-
-  var scrollQueued = false;
-  window.addEventListener('scroll', function () {
-    if (MODE !== 'page' || scrollQueued) return;
-    scrollQueued = true;
-    requestAnimationFrame(function () { scrollQueued = false; renderBase(); });
-  }, { passive: true });
-  window.addEventListener('resize', resize);
-
-  /* ---- UI ---- */
-  function say(msg) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(say.t); say.t = setTimeout(function () { toast.classList.remove('show'); }, 2200); }
-  function setOn(v) {
-    S.on = v; root.classList.toggle('pen-on', v);
-    btn.setAttribute('aria-pressed', String(v)); bar.hidden = !v;
-    live.style.pointerEvents = v ? 'auto' : 'none';
-    live.style.touchAction = MODE === 'viewport' ? 'none' : 'pan-x pan-y pinch-zoom';
-    if (!v && cur) onUp();
-  }
-  function undo() { if (!undoStack.length) return; redoStack.push(strokes); strokes = undoStack.pop(); renderBase(); }
-  function redo() { if (!redoStack.length) return; undoStack.push(strokes); strokes = redoStack.pop(); renderBase(); }
-  function clearAll() { if (!strokes.length) return; snapshot(); strokes = []; renderBase(); say('Cleared. Undo brings it back.'); }
-
-  function exportPNG(done) {
-    if (!strokes.length) { say('Nothing to export yet.'); if (done) done(null); return; }
-    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    strokes.forEach(function (s) { var b = bbox(s); x0 = Math.min(x0, b.x0); y0 = Math.min(y0, b.y0); x1 = Math.max(x1, b.x1); y1 = Math.max(y1, b.y1); });
-    var w = Math.min(4096, Math.ceil(x1 - x0) + 20), h = Math.min(4096, Math.ceil(y1 - y0) + 20);
-    var c = document.createElement('canvas'); c.width = w * DPR; c.height = h * DPR;
-    var x = c.getContext('2d'); x.setTransform(DPR, 0, 0, DPR, (-x0 + 10) * DPR, (-y0 + 10) * DPR); x.lineCap = 'round'; x.lineJoin = 'round';
-    strokes.forEach(function (s) { drawStroke(x, s); });
-    try {
-      c.toBlob(function (blob) {
-        stats.lastExportBytes = blob ? blob.size : 0;
-        try {
-          var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ink.png';
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-          say('Exported ink.png (the ink only, not the page).');
-        } catch (err) { say('This frame blocks downloads.'); }
-        if (done) done(blob);
-      }, 'image/png');
-    } catch (err) { say('Export is blocked here.'); if (done) done(null); }
-  }
-
-  btn.addEventListener('click', function () { setOn(!S.on); });
-  bar.addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.tool) { S.tool = b.dataset.tool; mark('[data-tool]', b); }
-    if (b.dataset.color) { S.color = b.dataset.color; mark('[data-color]', b); }
-    if (b.dataset.width) { S.width = b.dataset.width; mark('[data-width]', b); }
-    var act = b.dataset.act;
-    if (act === 'undo') undo(); else if (act === 'redo') redo(); else if (act === 'clear') clearAll();
-    else if (act === 'export') exportPNG(); else if (act === 'close') setOn(false);
-    else if (act === 'stylus') { S.stylusOnly = !S.stylusOnly; b.setAttribute('aria-pressed', String(S.stylusOnly)); say(S.stylusOnly ? 'Stylus only: touches are ignored.' : 'Touch drawing allowed.'); }
-  });
-  function mark(sel, b) { bar.querySelectorAll(sel).forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); }
-
-  function typing(t) { return t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.isContentEditable); }
-  document.addEventListener('keydown', function (e) {
-    if (typing(e.target)) return;
-    var mod = e.ctrlKey || e.metaKey;
-    if (!mod && !e.altKey && (e.key === 'p' || e.key === 'P')) { e.preventDefault(); setOn(!S.on); return; }
-    if (e.key === 'Escape' && S.on && !document.body.classList.contains('dialog-open')) { setOn(false); return; }
-    if (S.on && mod && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
-    if (S.on && mod && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); }
-  });
-
-  resize();
-  window.INK = {
-    mode: MODE,
-    get: function () { return strokes.slice(); },
-    set: function (arr) { if (cur) onUp(); strokes = arr ? arr.slice() : []; undoStack = []; redoStack = []; renderBase(); },
-    on: function () { setOn(true); }, off: function () { setOn(false); }, isOn: function () { return S.on; },
-    undo: undo, redo: redo, clear: clearAll, exportPNG: exportPNG, stats: stats,
-    megapixels: function () { return (base.width * base.height + live.width * live.height) / 1e6; },
-    resetStats: function () { for (var k in stats) stats[k] = 0; }
-  };
-})();
-
-/* ---------- step-by-step visual stories ---------- */
-(function () {
-  function show(st, i) {
-    var n = +st.dataset.n; i = Math.max(0, Math.min(n - 1, i)); st.dataset.cur = i;
-    st.querySelectorAll('.frame').forEach(function (f, k) { f.classList.toggle('on', k === i); });
-    st.querySelectorAll('.sdot').forEach(function (d, k) { d.classList.toggle('on', k === i); d.classList.toggle('seen', k < i); });
-    var p = st.querySelector('[data-prev]'), nx = st.querySelector('[data-next]');
-    p.disabled = i === 0; nx.disabled = i === n - 1;
-    nx.textContent = i === n - 1 ? 'Done' : 'Next step →';
-  }
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest && e.target.closest('.story button'); if (!b) return;
-    var st = b.closest('.story'), cur = +st.dataset.cur;
-    if (b.hasAttribute('data-next')) show(st, cur + 1);
-    else if (b.hasAttribute('data-prev')) show(st, cur - 1);
-    else if (b.dataset.go) show(st, +b.dataset.go);
-    else if (b.hasAttribute('data-all')) {
-      var all = st.classList.toggle('all'); b.setAttribute('aria-pressed', String(all)); b.textContent = all ? 'One step at a time' : 'Show all steps';
+      document.querySelectorAll('.tex').forEach(function (el) {
+        el.classList.add('raw');
+        el.textContent = el.textContent
+          .replace(/\\\[|\\\]|\\\(|\\\)/g, '')
+          .replace(/\\langle/g, '\u27e8').replace(/\\rangle/g, '\u27e9')
+          .replace(/\\lVert|\\rVert/g, '\u2016')
+          .replace(/\\sum_\{i=1\}\^\{n\}/g, '\u03a3 (i=1..n)').replace(/\\sum_i/g, '\u03a3')
+          .replace(/\\cos\\theta/g, 'cos \u03b8')
+          .replace(/\\ge/g, '\u2265').replace(/\\cdots|\\ldots/g, '\u2026')
+          .replace(/\\mathbf\{(\w)\}/g, '$1')
+          .replace(/\\quad|\\,|\\;|\\!/g, ' ')
+          .replace(/[{}]/g, '').replace(/\s+/g, ' ').trim();
+      });
     }
   });
-  document.addEventListener('keydown', function (e) {
-    var st = e.target.closest && e.target.closest('.story'); if (!st) return;
-    if (e.key === 'ArrowRight') { e.preventDefault(); show(st, +st.dataset.cur + 1); }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); show(st, +st.dataset.cur - 1); }
+</script>
+<script>
+  var DEF_X = [0.46, 0.38, 0.27, 0.91, 0.12];
+  var DEF_Y = [0.28, 0.36, 0.47, 0.10, 0.63];
+
+  function get(v) {
+    var out = [];
+    document.querySelectorAll('[data-v="' + v + '"]').forEach(function (el) {
+      out[+el.dataset.i] = parseFloat(el.value) || 0;
+    });
+    return out;
+  }
+
+  function set(v, arr) {
+    document.querySelectorAll('[data-v="' + v + '"]').forEach(function (el) {
+      el.value = arr[+el.dataset.i].toFixed(2);
+    });
+  }
+
+  function recompute() {
+    var x = get('x'), y = get('y');
+    var terms = [], nums = [], s = 0;
+    for (var i = 0; i < 5; i++) {
+      var p = x[i] * y[i];
+      s += p;
+      document.getElementById('p' + i).textContent = p.toFixed(3);
+      terms.push('(' + x[i].toFixed(2) + ')(' + y[i].toFixed(2) + ')');
+      nums.push(p.toFixed(3));
+    }
+    document.getElementById('sum').textContent = s.toFixed(3);
+
+    document.getElementById('trace').innerHTML =
+      '<span class="lhs">&#10216;x, y&#10217; =</span> ' + terms.join(' + ') + '<br>' +
+      '<span class="lhs">&#10216;x, y&#10217; =</span> ' + nums.join(' + ') + '<br>' +
+      '<span class="lhs">&#10216;x, y&#10217; =</span> <span class="fin">' + s.toFixed(3) +
+      '</span> <span class="ann">&larr; one number</span>';
+
+    var nx = Math.sqrt(x.reduce(function (a, b) { return a + b * b; }, 0));
+    var ny = Math.sqrt(y.reduce(function (a, b) { return a + b * b; }, 0));
+    var cos = (nx && ny) ? s / (nx * ny) : 0;
+    var verdict = cos > 0.05 ? 'they agree' : (cos < -0.05 ? 'they oppose' : 'indifferent');
+    document.getElementById('readout').innerHTML =
+      '&#8214;x&#8214; = ' + nx.toFixed(3) + '&nbsp;&nbsp;&#8214;y&#8214; = ' + ny.toFixed(3) +
+      '&nbsp;&nbsp;cos&theta; = <b>' + cos.toFixed(3) + '</b>&nbsp;&nbsp;' + verdict;
+
+    axioms(x, y);
+    weighted2();
+    kform();
+    basisPanels();
+    expansion();
+    kernelMatrix();
+    matmul();
+    renderSamples();
+    admissibility();
+    separable();
+    phi1d();
+    phi2d();
+    liftModel();
+    kernelPair();
+    rbf();
+    linearKernel();
+  }
+
+  function weighted2() {
+    var x = get('x2'), y = get('y2');
+    var w = parseFloat(document.getElementById('sw').value);
+    if (isNaN(w)) w = 0;
+    var W = w.toFixed(2).replace(/\.00$/, '');
+
+    var euc = [x[0] * y[0], x[1] * y[1]];
+    var wt = [x[0] * y[0], w * x[1] * y[1]];
+    var eS = euc[0] + euc[1], wS = wt[0] + wt[1];
+
+    document.getElementById('w2panel').innerHTML = panel([
+      { label: 'x', cells: x },
+      { label: 'y', cells: y },
+      { rule: 1 },
+      { label: 'x<sub>i</sub> y<sub>i</sub>', cells: euc, cls: 'mid', sum: eS, op: 1 },
+      { label: 'weight', cells: [1, w], cls: 'mid', op: 1 },
+      { label: 'w<sub>i</sub> x<sub>i</sub> y<sub>i</sub>', cells: wt, cls: 'p', sum: wS, op: 1 }
+    ], 2);
+
+    // does it remain an inner product?
+    var self0 = 1 * 1 + w * 0;      // <(1,0),(1,0)>
+    var self1 = 0 + w * 1;          // <(0,1),(0,1)>
+    var ok = w > 0;
+    var why = w > 0
+      ? '<span class="ok">weight &gt; 0 &larr; all three rules hold, this is an inner product</span>'
+      : (w === 0
+        ? '<span class="no">weight = 0 &larr; &#10216;(0,1),(0,1)&#10217; = 0 but (0,1) &ne; 0, definiteness fails</span>'
+        : '<span class="no">weight &lt; 0 &larr; &#10216;(0,1),(0,1)&#10217; = ' + F(self1) +
+          ' &lt; 0, definiteness fails</span>');
+
+    document.getElementById('vw').innerHTML =
+      '<span class="lhs">euclidean &nbsp;&nbsp;x&#8321;y&#8321; + x&#8322;y&#8322; =</span> ' +
+      F(euc[0]) + ' + ' + F(euc[1]) + ' = ' + F(eS) + '<br>' +
+      '<span class="lhs">weighted &nbsp;&nbsp;&nbsp;x&#8321;y&#8321; + ' + W +
+      'x&#8322;y&#8322; =</span> ' + F(wt[0]) + ' + ' + F(wt[1]) + ' = <span class="ok">' +
+      F(wS) + '</span><br>' + why;
+  }
+
+  function readK() {
+    var K = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    var ids = [['k00', 'k01', 'k02'], [null, 'k11', 'k12'], [null, null, 'k22']];
+    for (var i = 0; i < 3; i++) {
+      for (var j = i; j < 3; j++) {
+        var val = parseFloat(document.getElementById(ids[i][j]).value);
+        if (isNaN(val)) val = 0;
+        K[i][j] = val;
+        K[j][i] = val;
+      }
+    }
+    document.getElementById('m10').textContent = F(K[1][0]);
+    document.getElementById('m20').textContent = F(K[2][0]);
+    document.getElementById('m21').textContent = F(K[2][1]);
+    return K;
+  }
+
+  function kpreset(kind) {
+    var vals = {
+      I:   { k00: 1, k01: 0,  k02: 0, k11: 1, k12: 0,  k22: 1 },
+      W:   { k00: 1, k01: 0,  k02: 0, k11: 2, k12: 0,  k22: 1 },
+      T:   { k00: 2, k01: -1, k02: 0, k11: 2, k12: -1, k22: 2 },
+      BAD: { k00: 1, k01: 2,  k02: 0, k11: 1, k12: 0,  k22: 1 }
+    }[kind];
+    Object.keys(vals).forEach(function (id) {
+      document.getElementById(id).value = vals[id];
+    });
+    kform();
+  }
+
+  function kform() {
+    var K = readK();
+    var u = get('u'), v = get('v');
+
+    // step 1: Kv
+    var Kv = [0, 0, 0], rowTerms = [];
+    for (var i = 0; i < 3; i++) {
+      var s = 0, terms = [];
+      for (var j = 0; j < 3; j++) {
+        s += K[i][j] * v[j];
+        terms.push('(' + F(K[i][j]) + ')(' + F(v[j]) + ')');
+      }
+      Kv[i] = s;
+      rowTerms.push(terms.join(' + ') + ' = ' + F(s));
+    }
+
+    document.getElementById('kv').innerHTML = panel([
+      { label: 'v', cells: v },
+      { rule: 1 },
+      { label: 'K row 1 &middot; v', cells: K[0].map(function (k, j) { return k * v[j]; }), cls: 'mid', sum: Kv[0], op: 1 },
+      { label: 'K row 2 &middot; v', cells: K[1].map(function (k, j) { return k * v[j]; }), cls: 'mid', sum: Kv[1], op: 1 },
+      { label: 'K row 3 &middot; v', cells: K[2].map(function (k, j) { return k * v[j]; }), cls: 'mid', sum: Kv[2], op: 1 }
+    ], 3);
+
+    // step 2: u . Kv
+    var prod = u.map(function (a, i) { return a * Kv[i]; });
+    var total = prod.reduce(function (a, b) { return a + b; }, 0);
+
+    document.getElementById('ukv').innerHTML = panel([
+      { label: 'u', cells: u },
+      { label: 'K v', cells: Kv, cls: 'mid' },
+      { rule: 1 },
+      { label: 'u<sub>i</sub> (Kv)<sub>i</sub>', cells: prod, cls: 'p', sum: total, op: 1 }
+    ], 3);
+
+    // checks
+    var uKu = 0;
+    for (var a = 0; a < 3; a++) for (var b = 0; b < 3; b++) uKu += u[a] * K[a][b] * u[b];
+
+    // Sylvester's criterion on leading principal minors
+    var m1 = K[0][0];
+    var m2 = K[0][0] * K[1][1] - K[0][1] * K[0][1];
+    var m3 = K[0][0] * (K[1][1] * K[2][2] - K[1][2] * K[2][1])
+           - K[0][1] * (K[1][0] * K[2][2] - K[1][2] * K[2][0])
+           + K[0][2] * (K[1][0] * K[2][1] - K[1][1] * K[2][0]);
+    var pd = m1 > 0 && m2 > 0 && m3 > 0;
+
+    // reverse direction, for symmetry
+    var rev = 0;
+    for (var p = 0; p < 3; p++) for (var q = 0; q < 3; q++) rev += v[p] * K[p][q] * u[q];
+
+    document.getElementById('vk').innerHTML =
+      '<span class="lhs">&#10216;u, v&#10217;<sub>K</sub> = u<sup>T</sup>Kv =</span> <span class="ok">' + F(total) + '</span><br>' +
+      '<span class="lhs">&#10216;v, u&#10217;<sub>K</sub> = v<sup>T</sup>Ku =</span> ' + F(rev) +
+      (Math.abs(total - rev) < 1e-9 ? ' &nbsp;<span class="ok">&larr; symmetric</span>' : ' &nbsp;<span class="no">&larr; not symmetric</span>') + '<br>' +
+      '<span class="lhs">&#10216;u, u&#10217;<sub>K</sub> =</span> ' + F(uKu) + '<br>' +
+      '<span class="lhs">leading minors &nbsp;</span>' + F(m1) + ', ' + F(m2) + ', ' + F(m3) + '<br>' +
+      (pd ? '<span class="ok">all minors positive &larr; K is positive definite, so this is an inner product</span>'
+          : '<span class="no">a minor is not positive &larr; K is not positive definite, so this is NOT an inner product</span>');
+  }
+
+  function basisPanels() {
+    var x = get('x');
+    var n = 5;
+    var E = [];
+    for (var i = 0; i < n; i++) {
+      E.push(x.map(function (_, j) { return i === j ? 1 : 0; }));
+    }
+
+    // step 1: the basis vectors
+    document.getElementById('basisE').innerHTML = panel(
+      E.map(function (e, i) {
+        return { label: 'e<sub>' + (i + 1) + '</sub>', cells: e, cls: 'mid' };
+      }), n);
+
+    // step 2: scaled rows, then column sums
+    var scaled = E.map(function (e, i) {
+      return e.map(function (v) { return v * x[i]; });
+    });
+    var colSum = [];
+    for (var c = 0; c < n; c++) {
+      var s = 0;
+      for (var r = 0; r < n; r++) s += scaled[r][c];
+      colSum.push(s);
+    }
+
+    var rows = [];
+    scaled.forEach(function (row, i) {
+      rows.push({
+        label: 'x<sub>' + (i + 1) + '</sub> e<sub>' + (i + 1) + '</sub> &nbsp;(' + F(x[i]) + ')',
+        cells: row, cls: 'mid', op: 1
+      });
+    });
+    rows.push({ rule: 1 });
+    rows.push({ label: 'column sum', cells: colSum, cls: 'p', op: 1 });
+    rows.push({ label: 'x', cells: x });
+    document.getElementById('basisScaled').innerHTML = panel(rows, n);
+
+    var exact = colSum.every(function (v, i) { return Math.abs(v - x[i]) < 1e-12; });
+    var terms = x.map(function (v, i) {
+      return F(v) + '&middot;e<sub>' + (i + 1) + '</sub>';
+    }).join(' + ');
+    document.getElementById('vb').innerHTML =
+      '<span class="lhs">x =</span> ' + terms + '<br>' +
+      (exact ? '<span class="ok">column sums reproduce x exactly &larr; the decomposition is exact</span>'
+             : '<span class="no">mismatch</span>');
+
+    // coordinates as inner products
+    var measured = E.map(function (e) { return dot(x, e); });
+    document.getElementById('basisCoords').innerHTML = panel([
+      { label: 'x', cells: x },
+      { rule: 1 },
+      { label: '&#10216;x, e<sub>i</sub>&#10217;', cells: measured, cls: 'p', op: 1 },
+      { label: 'x again', cells: x }
+    ], n);
+
+    // orthonormality grid
+    var gram = [];
+    for (var a = 0; a < n; a++) {
+      gram.push({
+        label: 'e<sub>' + (a + 1) + '</sub>',
+        cells: E.map(function (e) { return dot(E[a], e); }),
+        cls: 'sq', op: 1
+      });
+    }
+    document.getElementById('basisGram').innerHTML = panel(gram, n);
+  }
+
+  var BASIS_MODE = 'ortho';
+
+  function setBasis(m) {
+    BASIS_MODE = m;
+    if (m === 'random') RANDK = rollK(5);
+    ['b-ortho', 'b-overlap', 'b2-ortho', 'b2-overlap', 'b3-ortho', 'b3-overlap', 'b3-random']
+      .forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var tag = id.split('-')[1];
+        el.style.background = (tag === m) ? '#DDE4E8' : 'transparent';
+      });
+    expansion();
+    kernelMatrix();
+    matmul();
+    renderSamples();
+    admissibility();
+    separable();
+    phi1d();
+    phi2d();
+    liftModel();
+    kernelPair();
+    rbf();
+    linearKernel();
+  }
+
+  function basisGramMatrix(n) {
+    if (BASIS_MODE === 'random') {
+      if (!RANDK) RANDK = rollK(n);
+      return RANDK;
+    }
+    var G = [];
+    for (var i = 0; i < n; i++) {
+      G.push([]);
+      for (var j = 0; j < n; j++) {
+        // orthonormal: identity. overlapping: 0.5^|i-j|, symmetric and positive definite.
+        G[i].push(BASIS_MODE === 'ortho'
+          ? (i === j ? 1 : 0)
+          : Math.pow(0.5, Math.abs(i - j)));
+      }
+    }
+    return G;
+  }
+
+  function expansion() {
+    var x = get('x'), y = get('y'), n = 5;
+    var G = basisGramMatrix(n);
+
+    // coefficient grid
+    var outer = [];
+    for (var i = 0; i < n; i++) {
+      outer.push({
+        label: 'x<sub>' + (i + 1) + '</sub> y<sub>j</sub>',
+        cells: y.map(function (yj) { return x[i] * yj; }),
+        cls: 'mid', op: 1
+      });
+    }
+    document.getElementById('expOuter').innerHTML = panel(outer, n);
+
+    // basis grid
+    var gramRows = G.map(function (row, i) {
+      return {
+        label: 'e<sub>' + (i + 1) + '</sub>',
+        cells: row,
+        cls: function (v) { return v === 0 ? 'dead' : 'sq'; },
+        op: 1
+      };
+    });
+    document.getElementById('expGram').innerHTML = panel(gramRows, n);
+
+    document.getElementById('gramCaption').innerHTML = (BASIS_MODE === 'random')
+      ? 'A random symmetric grid. It may or may not be a legitimate kernel &mdash; the admissibility panel further down says which.'
+      : (BASIS_MODE === 'ortho')
+      ? 'Ones on the diagonal, zeros off it. Twenty of the twenty-five cells are zero, and each zero is about to delete a term.'
+      : 'The directions now overlap. Neighbouring basis vectors share <span class="m">0.5</span>, ones two apart share <span class="m">0.25</span>, and no cell is zero. The grid is still symmetric and still positive definite.';
+
+    // terms
+    var total = 0, live = 0;
+    var termRows = [];
+    for (var a = 0; a < n; a++) {
+      var cells = [], rowSum = 0;
+      for (var b = 0; b < n; b++) {
+        var t = x[a] * y[b] * G[a][b];
+        if (G[a][b] !== 0) live++;
+        cells.push(t);
+        rowSum += t;
+      }
+      total += rowSum;
+      termRows.push({
+        label: 'i = ' + (a + 1),
+        cells: cells,
+        cls: function (v, ci) { return G[this.r][ci] === 0 ? 'dead' : 'p'; }.bind({ r: a }),
+        sum: rowSum, op: 1
+      });
+    }
+    document.getElementById('expTerms').innerHTML = panel(termRows, n);
+
+    var direct = dot(x, y);
+    var match = Math.abs(total - direct) < 1e-9;
+    document.getElementById('ve').innerHTML =
+      '<span class="lhs">terms in the double sum &nbsp;</span>' + (n * n) +
+      ' &nbsp;<span class="lhs">surviving &nbsp;</span>' + live + '<br>' +
+      '<span class="lhs">&Sigma;&Sigma; x<sub>i</sub>y<sub>j</sub>&#10216;e<sub>i</sub>,e<sub>j</sub>&#10217; =</span> <span class="ok">' +
+      F(total) + '</span><br>' +
+      (BASIS_MODE === 'ortho'
+        ? '<span class="lhs">&Sigma; x<sub>i</sub>y<sub>i</sub> &nbsp;(the single-row grid above) =</span> ' + F(direct) + '<br>' +
+          (match ? '<span class="ok">identical &larr; 20 zeros collapsed the double sum back to one row</span>'
+                 : '<span class="no">mismatch</span>')
+        : '<span class="lhs">euclidean value for comparison &nbsp;</span>' + F(direct) + '<br>' +
+          '<span class="ok">a different inner product &larr; all 25 terms contribute now</span>');
+  }
+
+  function kernelMatrix() {
+    var x = get('x'), y = get('y'), n = 5;
+    var K = basisGramMatrix(n);
+
+    document.getElementById('kerMat').innerHTML = panel(
+      K.map(function (row, i) {
+        return {
+          label: '&#10216;e<sub>' + (i + 1) + '</sub>, e<sub>j</sub>&#10217;',
+          cells: row,
+          cls: function (v) { return v === 0 ? 'dead' : 'sq'; },
+          op: 1
+        };
+      }), n);
+
+    document.getElementById('kerCaption').innerHTML = (BASIS_MODE === 'random')
+      ? 'A random roll. Symmetric by construction, but not necessarily positive definite.'
+      : (BASIS_MODE === 'ortho')
+      ? 'The identity matrix. When the seed is this sparse, the inner product it grows is the Euclidean one &mdash; which is why that formula felt like the only one for so long.'
+      : 'A dense seed. Same vectors, same arithmetic, a different notion of similarity &mdash; and it is symmetric and positive definite, so it is entirely legitimate.';
+
+    var Ky = [];
+    for (var i = 0; i < n; i++) {
+      var s = 0;
+      for (var j = 0; j < n; j++) s += K[i][j] * y[j];
+      Ky.push(s);
+    }
+    var prod = x.map(function (v, i) { return v * Ky[i]; });
+    var total = prod.reduce(function (a, b) { return a + b; }, 0);
+
+    document.getElementById('kerSteps').innerHTML = panel([
+      { label: 'y', cells: y },
+      { label: 'K y', cells: Ky, cls: 'mid', op: 1 },
+      { rule: 1 },
+      { label: 'x', cells: x },
+      { label: 'x<sub>i</sub> (Ky)<sub>i</sub>', cells: prod, cls: 'p', sum: total, op: 1 }
+    ], n);
+
+    // the same quantity by the two earlier routes
+    var direct = dot(x, y);
+    var dbl = 0;
+    for (var a = 0; a < n; a++) for (var b = 0; b < n; b++) dbl += x[a] * y[b] * K[a][b];
+
+    document.getElementById('vkm').innerHTML =
+      '<span class="lhs">single row &nbsp;&Sigma; x<sub>i</sub>y<sub>i</sub> =</span> ' + F(direct) +
+      (BASIS_MODE === 'ortho' ? '' : ' <span class="lhs">(euclidean, for reference)</span>') + '<br>' +
+      '<span class="lhs">double sum &nbsp;&Sigma;&Sigma; x<sub>i</sub>y<sub>j</sub>K<sub>ij</sub> =</span> ' + F(dbl) + '<br>' +
+      '<span class="lhs">matrix form &nbsp;x<sup>T</sup>Ky =</span> <span class="ok">' + F(total) + '</span><br>' +
+      (Math.abs(dbl - total) < 1e-9
+        ? '<span class="ok">the double sum and the matrix form agree &larr; same arithmetic, different magnification</span>'
+        : '<span class="no">mismatch</span>');
+  }
+
+  function matmul() {
+    var x = get('x'), y = get('y'), n = 5;
+    var K = basisGramMatrix(n);
+
+    // (x^T K) : row vector, column j = sum_i x_i K_ij
+    var xK = [];
+    for (var j = 0; j < n; j++) {
+      var s = 0;
+      for (var i = 0; i < n; i++) s += x[i] * K[i][j];
+      xK.push(s);
+    }
+    var leftProd = xK.map(function (v, j) { return v * y[j]; });
+    var leftTotal = leftProd.reduce(function (a, b) { return a + b; }, 0);
+
+    document.getElementById('mmLeft').innerHTML = panel([
+      { label: 'x', cells: x },
+      { rule: 1 },
+      { label: 'x<sup>T</sup>K', cells: xK, cls: 'mid', op: 1 },
+      { label: 'y', cells: y },
+      { rule: 1 },
+      { label: '(x<sup>T</sup>K)<sub>j</sub> y<sub>j</sub>', cells: leftProd, cls: 'p', sum: leftTotal, op: 1 }
+    ], n);
+
+    // (K y) : column vector, row i = sum_j K_ij y_j
+    var Ky = [];
+    for (var a = 0; a < n; a++) {
+      var t = 0;
+      for (var b = 0; b < n; b++) t += K[a][b] * y[b];
+      Ky.push(t);
+    }
+    var rightProd = x.map(function (v, i) { return v * Ky[i]; });
+    var rightTotal = rightProd.reduce(function (a, b) { return a + b; }, 0);
+
+    document.getElementById('mmRight').innerHTML = panel([
+      { label: 'y', cells: y },
+      { rule: 1 },
+      { label: 'Ky', cells: Ky, cls: 'mid', op: 1 },
+      { label: 'x', cells: x },
+      { rule: 1 },
+      { label: 'x<sub>i</sub> (Ky)<sub>i</sub>', cells: rightProd, cls: 'p', sum: rightTotal, op: 1 }
+    ], n);
+
+    var sameMid = xK.every(function (v, i) { return Math.abs(v - Ky[i]) < 1e-12; });
+    document.getElementById('vmm').innerHTML =
+      '<span class="lhs">(x<sup>T</sup>K) y =</span> <span class="ok">' + F(leftTotal) + '</span>' +
+      ' &nbsp;&nbsp;<span class="lhs">x<sup>T</sup> (Ky) =</span> <span class="ok">' + F(rightTotal) + '</span><br>' +
+      '<span class="lhs">intermediate vectors &nbsp;</span>' +
+      (sameMid
+        ? 'identical here, because this K is symmetric and both routes meet the same rows'
+        : 'different objects') + '<br>' +
+      (Math.abs(leftTotal - rightTotal) < 1e-9
+        ? '<span class="ok">same scalar &larr; matrix multiplication is associative</span>'
+        : '<span class="no">mismatch</span>');
+  }
+
+  var RANDK = null;
+
+  function rollK(n) {
+    var M = [];
+    for (var i = 0; i < n; i++) { M.push([]); for (var j = 0; j < n; j++) M[i].push(0); }
+    for (var a = 0; a < n; a++) {
+      for (var b = a; b < n; b++) {
+        // diagonal drawn positive, off-diagonal either sign, both to the nearest 0.5
+        var v = (a === b)
+          ? Math.round((0.5 + Math.random() * 2.5) * 2) / 2
+          : Math.round((Math.random() * 2 - 1) * 2) / 2;
+        M[a][b] = v; M[b][a] = v;
+      }
+    }
+    return M;
+  }
+
+  function det(M) {
+    var n = M.length;
+    if (n === 1) return M[0][0];
+    if (n === 2) return M[0][0] * M[1][1] - M[0][1] * M[1][0];
+    var s = 0;
+    for (var c = 0; c < n; c++) {
+      var minor = [];
+      for (var r = 1; r < n; r++) {
+        minor.push(M[r].filter(function (_, k) { return k !== c; }));
+      }
+      s += Math.pow(-1, c) * M[0][c] * det(minor);
+    }
+    return s;
+  }
+
+  function leadingMinors(M) {
+    var out = [];
+    for (var k = 1; k <= M.length; k++) {
+      out.push(det(M.slice(0, k).map(function (row) { return row.slice(0, k); })));
+    }
+    return out;
+  }
+
+  function isSymmetric(M) {
+    for (var i = 0; i < M.length; i++)
+      for (var j = 0; j < M.length; j++)
+        if (Math.abs(M[i][j] - M[j][i]) > 1e-12) return false;
+    return true;
+  }
+
+  var SAMPLES = [];
+
+  function randVec(n) {
+    var v = [];
+    for (var i = 0; i < n; i++) v.push(Math.round((Math.random() * 4 - 2) * 10) / 10);
+    return v;
+  }
+
+  function sampleMore(count) {
+    var n = 5;
+    for (var c = 0; c < (count || 1); c++) {
+      SAMPLES.push({ a: randVec(n), b: randVec(n) });
+    }
+    if (SAMPLES.length > 8) SAMPLES = SAMPLES.slice(-8);
+    renderSamples();
+  }
+
+  function resetSamples() { SAMPLES = []; renderSamples(); }
+
+  function quad(u, K, v) {
+    var s = 0;
+    for (var i = 0; i < u.length; i++)
+      for (var j = 0; j < v.length; j++) s += u[i] * K[i][j] * v[j];
+    return s;
+  }
+
+  function renderSamples() {
+    var n = 5, K = basisGramMatrix(n);
+    var rows = [];
+    SAMPLES.forEach(function (s, idx) {
+      rows.push({ label: 'x <span style="color:var(--ink-faint)">#' + (idx + 1) + '</span>', cells: s.a });
+      rows.push({
+        label: 'y', cells: s.b, cls: 'mid',
+        sum: quad(s.a, K, s.b), op: 1
+      });
+      if (idx < SAMPLES.length - 1) rows.push({ rule: 1 });
+    });
+    document.getElementById('sampleTable').innerHTML = rows.length
+      ? panel(rows, n)
+      : '<div style="font-family:var(--mono);font-size:13px;color:var(--ink-faint);padding:6px 0">no pairs sampled yet</div>';
+
+    document.getElementById('vsample').innerHTML =
+      '<span class="lhs">pairs asked about &nbsp;</span>' + SAMPLES.length +
+      ' <span class="lhs">(of infinitely many possible)</span><br>' +
+      '<span class="lhs">numbers stored in K &nbsp;</span><span class="ok">' + (n * n) + '</span>';
+  }
+
+  function admissibility() {
+    var n = 5, K = basisGramMatrix(n);
+    var sym = isSymmetric(K);
+    var mins = leadingMinors(K);
+    var pd = mins.every(function (v) { return v > 1e-12; });
+    var label = { ortho: 'identity', overlap: 'overlapping', random: 'random roll' }[BASIS_MODE];
+
+    document.getElementById('vadmit').innerHTML =
+      '<span class="lhs">current K &nbsp;</span>' + label + '<br>' +
+      '<span class="lhs">rule 1 &nbsp;linearity &nbsp;</span><span class="ok">holds for any K</span><br>' +
+      '<span class="lhs">rule 2 &nbsp;symmetry &nbsp;</span>' +
+      (sym ? '<span class="ok">K = K<sup>T</sup>, holds</span>' : '<span class="no">fails</span>') + '<br>' +
+      '<span class="lhs">rule 3 &nbsp;definiteness &nbsp;</span>minors ' +
+      mins.map(function (v) { return F(v); }).join(', ') + '<br>' +
+      (pd
+        ? '<span class="ok">all positive &larr; this K defines an inner product</span>'
+        : '<span class="no">not all positive &larr; a well-defined function, but not an inner product</span>');
+  }
+
+  // deterministic pseudo-random data, so the by-hand numbers never move
+  function lcg(seed) {
+    var s = seed;
+    return function () { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  }
+
+  var SEP_DATA = (function () {
+    var r = lcg(20260923), pts = [];
+    function cluster(cx, cy, label, n) {
+      for (var i = 0; i < n; i++) {
+        var u = (r() + r() + r() - 1.5) * 1.1;
+        var v = (r() + r() + r() - 1.5) * 1.1;
+        pts.push({ x: +(cx + u).toFixed(2), y: +(cy + v).toFixed(2), label: label });
+      }
+    }
+    cluster(1.3, 1.4, 1, 18);
+    cluster(-1.2, -1.2, -1, 18);
+    return pts;
+  })();
+
+  var SEP_MARKED = [0, 18, 13];   // one per class, plus the point closest to the boundary
+
+  function sepBest() {
+    document.getElementById('sepAngle').value = 47;
+    document.getElementById('sepB').value = -0.15;
+    separable();
+  }
+
+  function separable() {
+    var deg = +document.getElementById('sepAngle').value;
+    var b = +document.getElementById('sepB').value;
+    var th = deg * Math.PI / 180;
+    var w = [Math.cos(th), Math.sin(th)];
+
+    var W = 520, H = 340, pad = 18, lo = -4, hi = 4;
+    var sx = function (v) { return pad + (v - lo) / (hi - lo) * (W - 2 * pad); };
+    var sy = function (v) { return H - pad - (v - lo) / (hi - lo) * (H - 2 * pad); };
+
+    var right = 0;
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto">';
+    svg += '<line class="axisline" x1="' + sx(lo) + '" y1="' + sy(0) + '" x2="' + sx(hi) + '" y2="' + sy(0) + '"/>';
+    svg += '<line class="axisline" x1="' + sx(0) + '" y1="' + sy(lo) + '" x2="' + sx(0) + '" y2="' + sy(hi) + '"/>';
+
+    // boundary: w1*x + w2*y + b = 0, drawn by marching along the perpendicular direction
+    var px = -w[1], py = w[0];
+    var x0 = -b * w[0], y0 = -b * w[1];
+    var t = 12;
+    svg += '<line class="sepline" x1="' + sx(x0 - t * px) + '" y1="' + sy(y0 - t * py) +
+           '" x2="' + sx(x0 + t * px) + '" y2="' + sy(y0 + t * py) + '"/>';
+
+    // arrow for w
+    svg += '<line class="sepline" x1="' + sx(0) + '" y1="' + sy(0) + '" x2="' + sx(w[0] * 1.6) +
+           '" y2="' + sy(w[1] * 1.6) + '" stroke-dasharray="3 3"/>';
+    svg += '<text class="badge" x="' + (sx(w[0] * 1.6) + 5) + '" y="' + (sy(w[1] * 1.6) - 4) + '">w</text>';
+
+    SEP_DATA.forEach(function (p, i) {
+      var score = w[0] * p.x + w[1] * p.y + b;
+      var pred = score > 0 ? 1 : -1;
+      if (pred === p.label) right++;
+      svg += '<circle class="' + (p.label === 1 ? 'cls-a' : 'cls-b') + '" cx="' + sx(p.x) +
+             '" cy="' + sy(p.y) + '" r="5.5" opacity="' + (pred === p.label ? 0.95 : 0.35) + '"/>';
+      if (SEP_MARKED.indexOf(i) > -1) {
+        svg += '<circle class="ring" cx="' + sx(p.x) + '" cy="' + sy(p.y) + '" r="9.5"/>';
+      }
+    });
+    svg += '</svg>';
+    document.getElementById('sepPlot').innerHTML = svg;
+
+    var n = SEP_DATA.length;
+    document.getElementById('vsep').innerHTML =
+      '<span class="lhs">w =</span> (' + F(w[0]) + ', ' + F(w[1]) + ')' +
+      ' &nbsp;&nbsp;<span class="lhs">b =</span> ' + F(b) + '<br>' +
+      '<span class="lhs">correctly placed &nbsp;</span>' + right + ' / ' + n + '<br>' +
+      (right === n
+        ? '<span class="ok">every point on the correct side &larr; linearly separable by this w</span>'
+        : '<span class="no">' + (n - right) + ' on the wrong side &mdash; faded circles above</span>');
+
+    // by-hand grid for the three ringed points
+    var rows = [];
+    var labels = SEP_MARKED.map(function (i, k) { return 'point ' + (k + 1); });
+    var head = '<table class="ledger"><tr><th style="width:34%">&nbsp;</th>';
+    labels.forEach(function (l) { head += '<th style="text-align:right">' + l + '</th>'; });
+    head += '</tr>';
+
+    function line(name, fn, cls) {
+      var s = '<tr><td class="lhs-col">' + name + '</td>';
+      SEP_MARKED.forEach(function (i) {
+        s += '<td class="val"' + (cls ? ' style="color:' + cls + '"' : '') + '>' + fn(SEP_DATA[i]) + '</td>';
+      });
+      return s + '</tr>';
+    }
+
+    var body = '';
+    body += line('x&#8321;', function (p) { return F(p.x); });
+    body += line('x&#8322;', function (p) { return F(p.y); });
+    body += line('w&#8321;x&#8321;', function (p) { return F(w[0] * p.x); });
+    body += line('w&#8322;x&#8322;', function (p) { return F(w[1] * p.y); });
+    body += line('&#10216;w, x&#10217;', function (p) { return F(w[0] * p.x + w[1] * p.y); });
+    body += line('+ b', function () { return F(b); });
+    body += line('f(x)', function (p) { return F(w[0] * p.x + w[1] * p.y + b); }, '#7C3319');
+    body += line('sign f(x)', function (p) { return (w[0] * p.x + w[1] * p.y + b) > 0 ? '+1' : '\u22121'; });
+    body += line('true label', function (p) { return p.label === 1 ? '+1' : '\u22121'; });
+    body += line('verdict', function (p) {
+      var pr = (w[0] * p.x + w[1] * p.y + b) > 0 ? 1 : -1;
+      return pr === p.label ? '<span style="color:var(--prod)">correct</span>'
+                            : '<span style="color:var(--res)">wrong</span>';
+    });
+
+    document.getElementById('sepHand').innerHTML = head + body + '</table>';
+  }
+
+  var PHI_X = [-3, -2.4, -1.8, -0.9, -0.3, 0.3, 0.9, 1.8, 2.4, 3];
+  function phiLabel(x) { return (x * x - 1) > 0 ? 1 : -1; }   // +1 blue, -1 yellow
+
+  function phi1d() {
+    var t = +document.getElementById('phiT').value;
+    var W = 520, H = 90, pad = 26, lo = -3.8, hi = 3.8;
+    var sx = function (v) { return pad + (v - lo) / (hi - lo) * (W - 2 * pad); };
+    var cy = 50;
+
+    var right = 0;
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto">';
+    svg += '<line class="axisline" x1="' + pad + '" y1="' + cy + '" x2="' + (W - pad) + '" y2="' + cy + '"/>';
+    svg += '<line class="sepline" x1="' + sx(t) + '" y1="' + (cy - 26) + '" x2="' + sx(t) + '" y2="' + (cy + 26) + '"/>';
+    svg += '<text class="badge" x="' + (sx(t) + 5) + '" y="' + (cy - 30) + '">t</text>';
+
+    PHI_X.forEach(function (x) {
+      var lab = phiLabel(x);
+      var pred = x > t ? 1 : -1;
+      if (pred === lab) right++;
+      svg += '<circle class="' + (lab === 1 ? 'cls-a' : 'cls-b') + '" cx="' + sx(x) + '" cy="' + cy +
+             '" r="6.5" opacity="' + (pred === lab ? 0.95 : 0.3) + '"/>';
+    });
+    svg += '</svg>';
+    document.getElementById('phi1d').innerHTML = svg;
+
+    // best achievable by any threshold, either polarity
+    var best = 0;
+    for (var s = -40; s <= 40; s++) {
+      var tt = s / 10, c1 = 0, c2 = 0;
+      PHI_X.forEach(function (x) {
+        var lab = phiLabel(x);
+        if ((x > tt ? 1 : -1) === lab) c1++;
+        if ((x > tt ? -1 : 1) === lab) c2++;
+      });
+      best = Math.max(best, c1, c2);
+    }
+
+    document.getElementById('vphi1').innerHTML =
+      '<span class="lhs">threshold t =</span> ' + F(t) +
+      ' &nbsp;&nbsp;<span class="lhs">correct &nbsp;</span>' + right + ' / ' + PHI_X.length + '<br>' +
+      '<span class="lhs">best achievable by any threshold &nbsp;</span><span class="no">' +
+      best + ' / ' + PHI_X.length + '</span><br>' +
+      '<span class="no">not linearly separable in one dimension</span>';
+  }
+
+  function phi2d() {
+    var hgt = +document.getElementById('phiH').value;
+    var W = 520, H = 300, pad = 26;
+    var lox = -3.8, hix = 3.8, loy = -1.8, hiy = 8.6;
+    var sx = function (v) { return pad + (v - lox) / (hix - lox) * (W - 2 * pad); };
+    var sy = function (v) { return H - pad - (v - loy) / (hiy - loy) * (H - 2 * pad); };
+
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto">';
+    svg += '<line class="axisline" x1="' + pad + '" y1="' + sy(0) + '" x2="' + (W - pad) + '" y2="' + sy(0) + '"/>';
+    svg += '<line class="axisline" x1="' + sx(0) + '" y1="' + sy(loy) + '" x2="' + sx(0) + '" y2="' + sy(hiy) + '"/>';
+
+    // the parabola the data now lies on
+    var d = '';
+    for (var u = lox; u <= hix + 0.001; u += 0.1) {
+      d += (d ? ' L ' : 'M ') + sx(u).toFixed(1) + ' ' + sy(u * u - 1).toFixed(1);
+    }
+    svg += '<path d="' + d + '" fill="none" stroke="var(--ink-faint)" stroke-width="1"/>';
+
+    svg += '<line class="sepline" x1="' + pad + '" y1="' + sy(hgt) + '" x2="' + (W - pad) + '" y2="' + sy(hgt) + '"/>';
+
+    var right = 0;
+    PHI_X.forEach(function (x) {
+      var lab = phiLabel(x), y2 = x * x - 1;
+      var pred = y2 > hgt ? 1 : -1;
+      if (pred === lab) right++;
+      svg += '<circle class="' + (lab === 1 ? 'cls-a' : 'cls-b') + '" cx="' + sx(x) + '" cy="' + sy(y2) +
+             '" r="6.5" opacity="' + (pred === lab ? 0.95 : 0.3) + '"/>';
+    });
+    svg += '</svg>';
+    document.getElementById('phi2d').innerHTML = svg;
+
+    var n = PHI_X.length;
+    document.getElementById('vphi2').innerHTML =
+      '<span class="lhs">boundary &nbsp;x&sup2; &minus; 1 =</span> ' + F(hgt) +
+      ' &nbsp;&nbsp;<span class="lhs">correct &nbsp;</span>' + right + ' / ' + n + '<br>' +
+      (right === n
+        ? '<span class="ok">separated &larr; a straight line suffices in the lifted space</span>'
+        : '<span class="no">' + (n - right) + ' misplaced &mdash; slide h back towards 0</span>');
+
+    // by-hand table
+    var xs = PHI_X;
+    document.getElementById('phiHand').innerHTML = panel([
+      { label: 'x', cells: xs },
+      { rule: 1 },
+      { label: 'x&sup2;', cells: xs.map(function (v) { return v * v; }), cls: 'mid', op: 1 },
+      {
+        label: 'x&sup2; &minus; 1', cells: xs.map(function (v) { return v * v - 1; }),
+        cls: function (v) { return v > 0 ? 'p' : 'sq'; }, op: 1
+      },
+      {
+        label: 'sign', cells: xs.map(function (v) { return (v * v - 1) > 0 ? 1 : -1; }),
+        cls: function (v) { return v > 0 ? 'p' : 'sq'; }, op: 1
+      }
+    ], xs.length);
+  }
+
+  function phiOf(x) { return [x, x * x - 1]; }
+
+  function liftModel() {
+    var xs = PHI_X, w = [0, 1];
+    var p1 = xs.map(function (x) { return phiOf(x)[0]; });
+    var p2 = xs.map(function (x) { return phiOf(x)[1]; });
+    var t1 = p1.map(function (v) { return w[0] * v; });
+    var t2 = p2.map(function (v) { return w[1] * v; });
+    var score = t1.map(function (v, i) { return v + t2[i]; });
+
+    document.getElementById('liftModel').innerHTML = panel([
+      { label: '&varphi;&#8321;(x) = x', cells: p1 },
+      { label: '&varphi;&#8322;(x) = x&sup2;&minus;1', cells: p2 },
+      { rule: 1 },
+      { label: 'w&#8321;&varphi;&#8321; &nbsp;(w&#8321;=0)', cells: t1, cls: 'dead', op: 1 },
+      { label: 'w&#8322;&varphi;&#8322; &nbsp;(w&#8322;=1)', cells: t2, cls: 'mid', op: 1 },
+      { rule: 1 },
+      {
+        label: 'w<sup>T</sup>&varphi;(x)', cells: score,
+        cls: function (v) { return v > 0 ? 'p' : 'sq'; }, op: 1
+      },
+      {
+        label: 'sign', cells: score.map(function (v) { return v > 0 ? 1 : -1; }),
+        cls: function (v) { return v > 0 ? 'p' : 'sq'; }, op: 1
+      }
+    ], xs.length);
+
+    var right = 0;
+    xs.forEach(function (x, i) { if ((score[i] > 0 ? 1 : -1) === phiLabel(x)) right++; });
+    document.getElementById('vlift').innerHTML =
+      '<span class="lhs">w =</span> (0, 1) &nbsp;&nbsp;<span class="lhs">correct &nbsp;</span>' +
+      right + ' / ' + xs.length + '<br>' +
+      (right === xs.length
+        ? '<span class="ok">perfect &larr; no threshold, no tuning, one coordinate read off</span>'
+        : '<span class="no">misclassifications remain</span>');
+  }
+
+  function kernelPair() {
+    var si = document.getElementById('kSelI'), sj = document.getElementById('kSelJ');
+    if (!si.options.length) {
+      PHI_X.forEach(function (x, i) {
+        si.add(new Option('x = ' + x, i));
+        sj.add(new Option('x = ' + x, i));
+      });
+      si.value = 0; sj.value = 9;
+    }
+    var a = PHI_X[+si.value], b = PHI_X[+sj.value];
+    var pa = phiOf(a), pb = phiOf(b);
+    var prod = [pa[0] * pb[0], pa[1] * pb[1]];
+    var k = prod[0] + prod[1];
+
+    document.getElementById('kPair').innerHTML = panel([
+      { label: '&varphi;(x) &nbsp;x=' + F(a), cells: pa, cls: 'mid' },
+      { label: '&varphi;(y) &nbsp;y=' + F(b), cells: pb, cls: 'mid' },
+      { rule: 1 },
+      { label: '&varphi;<sub>i</sub>(x)&varphi;<sub>i</sub>(y)', cells: prod, cls: 'p', sum: k, op: 1 }
+    ], 2);
+
+    document.getElementById('vkpair').innerHTML =
+      '<span class="lhs">k(x, y) = &varphi;(x)<sup>T</sup>&varphi;(y) =</span> (' + F(pa[0]) + ')(' + F(pb[0]) +
+      ') + (' + F(pa[1]) + ')(' + F(pb[1]) + ')<br>' +
+      '<span class="lhs">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</span> ' +
+      F(prod[0]) + ' + ' + F(prod[1]) + ' = <span class="ok">' + F(k) + '</span>';
+
+    // full matrix
+    var rows = PHI_X.map(function (u, i) {
+      var pu = phiOf(u);
+      return {
+        label: 'x=' + F(u),
+        cells: PHI_X.map(function (v) {
+          var pv = phiOf(v);
+          return pu[0] * pv[0] + pu[1] * pv[1];
+        }),
+        cls: function (val, ci) {
+          return (ci === +sj.value && i === +si.value) ? 'r' : (val > 0 ? 'p' : 'sq');
+        },
+        op: 1
+      };
+    });
+    document.getElementById('kGram').innerHTML = panel(rows, PHI_X.length);
+  }
+
+  function rbf() {
+    var si = document.getElementById('rSelI'), sj = document.getElementById('rSelJ');
+    if (!si.options.length) {
+      PHI_X.forEach(function (x, i) {
+        si.add(new Option('x = ' + x, i));
+        sj.add(new Option('x = ' + x, i));
+      });
+      si.value = 3; sj.value = 6;
+    }
+    var sig = parseFloat(document.getElementById('rSigma').value);
+    if (!(sig > 0)) sig = 1.5;
+    var a = PHI_X[+si.value], b = PHI_X[+sj.value];
+
+    var diff = a - b, sq = diff * diff, den = 2 * sig * sig, expo = -sq / den, k = Math.exp(expo);
+    var G = function (v) { return v.toFixed(4); };
+
+    document.getElementById('vrbf').innerHTML =
+      '<span class="lhs">x =</span> ' + F(a) + ' &nbsp;&nbsp;<span class="lhs">y =</span> ' + F(b) +
+      ' &nbsp;&nbsp;<span class="lhs">&sigma; =</span> ' + F(sig) + '<br>' +
+      '<span class="lhs">x &minus; y =</span> ' + F(diff) + '<br>' +
+      '<span class="lhs">&#8214;x &minus; y&#8214;&sup2; =</span> ' + G(sq) + '<br>' +
+      '<span class="lhs">2&sigma;&sup2; =</span> ' + G(den) + '<br>' +
+      '<span class="lhs">exponent &nbsp;&minus;&#8214;x&minus;y&#8214;&sup2; / 2&sigma;&sup2; =</span> ' + G(expo) + '<br>' +
+      '<span class="lhs">k(x, y) = e<sup>' + G(expo) + '</sup> =</span> <span class="ok">' + G(k) + '</span>';
+
+    var rows = PHI_X.map(function (u, i) {
+      return {
+        label: 'x=' + F(u),
+        cells: PHI_X.map(function (v) { return Math.exp(-((u - v) * (u - v)) / den); }),
+        cls: function (val, ci) {
+          if (i === +si.value && ci === +sj.value) return 'r';
+          return val > 0.5 ? 'p' : 'mid';
+        },
+        op: 1
+      };
+    });
+    document.getElementById('rGram').innerHTML = panel(rows, PHI_X.length);
+
+    // series expansion, 1-D case
+    var pre = Math.exp(-(a * a) / den) * Math.exp(-(b * b) / den);
+    var z = (a * b) / (sig * sig);
+    var terms = [], partial = [], run = 0, fact = 1;
+    for (var j = 0; j < 8; j++) {
+      if (j > 0) fact *= j;
+      var t = Math.pow(z, j) / fact;
+      run += t;
+      terms.push(t);
+      partial.push(pre * run);
+    }
+
+    document.getElementById('rSeries').innerHTML = panel([
+      { label: 'j', cells: [0, 1, 2, 3, 4, 5, 6, 7] },
+      { rule: 1 },
+      { label: '(xy/&sigma;&sup2;)<sup>j</sup> / j!', cells: terms, cls: 'mid', op: 1 },
+      {
+        label: 'partial sum &times; prefactor', cells: partial,
+        cls: function (v) { return Math.abs(v - k) < 5e-4 ? 'p' : 'sq'; }, op: 1
+      }
+    ], 8);
+
+    document.getElementById('vseries').innerHTML =
+      '<span class="lhs">prefactor &nbsp;e<sup>&minus;x&sup2;/2&sigma;&sup2;</sup> e<sup>&minus;y&sup2;/2&sigma;&sup2;</sup> =</span> ' + G(pre) + '<br>' +
+      '<span class="lhs">xy/&sigma;&sup2; =</span> ' + G(z) + '<br>' +
+      '<span class="lhs">after 8 terms &nbsp;</span>' + G(partial[7]) + '<br>' +
+      '<span class="lhs">closed form &nbsp;</span><span class="ok">' + G(k) + '</span>' +
+      ' &nbsp;<span class="lhs">gap &nbsp;</span>' + Math.abs(partial[7] - k).toExponential(2);
+  }
+
+  var A_SHAPE = 'wide';   // wide = 2x3, tall = 3x3, rankone = 2x3 with dependent rows
+
+  function readA() {
+    var ids = [['a00', 'a01', 'a02'], ['a10', 'a11', 'a12']];
+    var A = ids.map(function (row) {
+      return row.map(function (id) {
+        var v = parseFloat(document.getElementById(id).value);
+        return isNaN(v) ? 0 : v;
+      });
+    });
+    if (A_SHAPE === 'tall') A.push([0, 0, 1]);   // a third output row, making A square
+    return A;
+  }
+
+  function aPreset(kind) {
+    A_SHAPE = kind;
+    var v = {
+      wide:    { a00: 1, a01: 2, a02: 0, a10: 0, a11: 1, a12: -1 },
+      tall:    { a00: 1, a01: 2, a02: 0, a10: 0, a11: 1, a12: -1 },
+      rankone: { a00: 1, a01: 2, a02: 0, a10: 2, a11: 4, a12: 0 }
+    }[kind];
+    Object.keys(v).forEach(function (id) { document.getElementById(id).value = v[id]; });
+    linearKernel();
+  }
+
+  function matVec(M, x) {
+    return M.map(function (row) {
+      var s = 0;
+      for (var j = 0; j < row.length; j++) s += row[j] * x[j];
+      return s;
+    });
+  }
+
+  function linearKernel() {
+    var A = readA(), u = get('u'), v = get('v'), m = A.length, n = 3;
+
+    // Route A: explicit features
+    var fu = matVec(A, u), fv = matVec(A, v);
+    var fprod = fu.map(function (a, i) { return a * fv[i]; });
+    var routeA = fprod.reduce(function (a, b) { return a + b; }, 0);
+
+    document.getElementById('linFeat').innerHTML =
+      '<div class="gridlabel">inputs &mdash; ' + n + ' dimensions</div>' +
+      panel([
+        { label: 'u', cells: u },
+        { label: 'v', cells: v }
+      ], n) +
+      '<div class="gridlabel">features &mdash; ' + m + ' dimensions</div>' +
+      panel([
+        { label: '&varphi;(u) = Au', cells: fu, cls: 'mid', op: 1 },
+        { label: '&varphi;(v) = Av', cells: fv, cls: 'mid', op: 1 },
+        { rule: 1 },
+        { label: '&varphi;<sub>i</sub>(u)&varphi;<sub>i</sub>(v)', cells: fprod, cls: 'p', sum: routeA, op: 1 }
+      ], m);
+
+    // Route B: K = A^T A
+    var K = [];
+    for (var i = 0; i < n; i++) {
+      K.push([]);
+      for (var j = 0; j < n; j++) {
+        var s = 0;
+        for (var r = 0; r < m; r++) s += A[r][i] * A[r][j];
+        K[i].push(s);
+      }
+    }
+    document.getElementById('linK').innerHTML = panel(
+      K.map(function (row, i) {
+        return { label: '(A<sup>T</sup>A) row ' + (i + 1), cells: row, cls: 'sq', op: 1 };
+      }), n);
+
+    var Kv = matVec(K, v);
+    var prod = u.map(function (a, i) { return a * Kv[i]; });
+    var routeB = prod.reduce(function (a, b) { return a + b; }, 0);
+
+    document.getElementById('linKSteps').innerHTML = panel([
+      { label: 'v', cells: v },
+      { label: 'Kv', cells: Kv, cls: 'mid', op: 1 },
+      { label: 'u', cells: u },
+      { rule: 1 },
+      { label: 'u<sub>i</sub>(Kv)<sub>i</sub>', cells: prod, cls: 'p', sum: routeB, op: 1 }
+    ], n);
+
+    document.getElementById('vlin').innerHTML =
+      '<span class="lhs">route A &nbsp;(Au)<sup>T</sup>(Av) =</span> ' + F(routeA) + '<br>' +
+      '<span class="lhs">route B &nbsp;u<sup>T</sup>A<sup>T</sup>Av =</span> <span class="ok">' + F(routeB) + '</span><br>' +
+      (Math.abs(routeA - routeB) < 1e-9
+        ? '<span class="ok">identical &larr; the feature map and the kernel are the same object</span>'
+        : '<span class="no">mismatch</span>');
+
+    // rank / definiteness diagnostic
+    var mins = leadingMinors(K);
+    var pd = mins.every(function (x) { return x > 1e-9; });
+    var uKu = quad(u, K, u);
+    document.getElementById('vrank').innerHTML =
+      '<span class="lhs">A is &nbsp;</span>' + m + ' &times; ' + n +
+      ' &nbsp;&nbsp;<span class="lhs">K = A<sup>T</sup>A is &nbsp;</span>' + n + ' &times; ' + n + '<br>' +
+      '<span class="lhs">&#10216;u, u&#10217;<sub>K</sub> = &#8214;Au&#8214;&sup2; =</span> ' + F(uKu) +
+      ' &nbsp;<span class="ok">&ge; 0 always</span><br>' +
+      '<span class="lhs">leading minors &nbsp;</span>' + mins.map(function (x) { return F(x); }).join(', ') + '<br>' +
+      (pd
+        ? '<span class="ok">positive definite &larr; a genuine inner product</span>'
+        : '<span class="no">positive semi-definite only &larr; A flattens a direction, so rule 3 fails</span>');
+  }
+
+  function dot(u, v) {
+    var t = 0;
+    for (var i = 0; i < u.length; i++) t += u[i] * v[i];
+    return t;
+  }
+
+  var F = function (n) { return (Math.abs(n) < 5e-4 ? 0 : n).toFixed(3); };
+
+  function panel(rows, n) {
+    n = n || 5;
+    var h = '<table class="grid"><tr><th class="gut">i</th>';
+    for (var c = 1; c <= n; c++) h += '<th class="pos">' + c + '</th>';
+    h += '<th></th><th></th></tr>';
+    rows.forEach(function (r) {
+      if (r.rule) {
+        h += '<tr class="steprule"><td colspan="' + (n + 3) + '"><hr></td></tr>';
+        return;
+      }
+      h += '<tr><th class="' + (r.op ? 'opgut' : 'gut') + '">' + r.label + '</th>';
+      r.cells.forEach(function (v, ci) {
+        var cls = (typeof r.cls === 'function') ? r.cls(v, ci) : r.cls;
+        h += '<td>' + (cls
+          ? '<div class="out ' + cls + '">' + F(v) + '</div>'
+          : '<div class="out mid" style="background:#fff;border-color:#D4DBE0;color:#4C575F">' + F(v) + '</div>') + '</td>';
+      });
+      if (r.sum === undefined) { h += '<td></td><td></td>'; }
+      else {
+        h += '<td class="arrow">&rarr;</td><td><div class="out r">' + F(r.sum) + '</div></td>';
+      }
+      h += '</tr>';
+    });
+    h += '</table>';
+    return h;
+  }
+
+  function axioms(x, y) {
+    var z = get('z');
+    var a = parseFloat(document.getElementById('sa').value) || 0;
+    var b = parseFloat(document.getElementById('sb').value) || 0;
+    var A = a.toFixed(2), B = b.toFixed(2);
+
+    var ax = x.map(function (v) { return a * v; });
+    var by = y.map(function (v) { return b * v; });
+    var w = ax.map(function (v, i) { return v + by[i]; });
+    var wz = w.map(function (v, i) { return v * z[i]; });
+    var L = dot(w, z);
+
+    document.getElementById('rule1a').innerHTML = panel([
+      { label: 'x', cells: x },
+      { label: 'y', cells: y },
+      { rule: 1 },
+      { label: 'a&middot;x &nbsp;(a=' + A + ')', cells: ax, cls: 'mid', op: 1 },
+      { label: 'b&middot;y &nbsp;(b=' + B + ')', cells: by, cls: 'mid', op: 1 },
+      { label: 'w = ax + by', cells: w, cls: 'mid', op: 1 },
+      { rule: 1 },
+      { label: 'z', cells: z },
+      { label: 'w<sub>i</sub> z<sub>i</sub>', cells: wz, cls: 'p', sum: L, op: 1 }
+    ]);
+
+    var xz = x.map(function (v, i) { return v * z[i]; });
+    var yz = y.map(function (v, i) { return v * z[i]; });
+    var dxz = dot(x, z), dyz = dot(y, z);
+    var R = a * dxz + b * dyz;
+
+    document.getElementById('rule1b').innerHTML = panel([
+      { label: 'z', cells: z },
+      { rule: 1 },
+      { label: 'x<sub>i</sub> z<sub>i</sub>', cells: xz, cls: 'p', sum: dxz, op: 1 },
+      { label: 'y<sub>i</sub> z<sub>i</sub>', cells: yz, cls: 'p', sum: dyz, op: 1 }
+    ]) +
+      '<div class="verdict" style="border-left-color:var(--prod);margin:16px 0 0">' +
+      '<span class="lhs">a&#10216;x,z&#10217; + b&#10216;y,z&#10217; =</span> (' + A + ')(' +
+      F(dxz) + ') + (' + B + ')(' + F(dyz) + ')<br>' +
+      '<span class="lhs">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</span> ' +
+      F(a * dxz) + ' + ' + F(b * dyz) + ' = <span class="ok">' + F(R) + '</span></div>';
+
+    var ok1 = Math.abs(L - R) < 1e-9;
+    document.getElementById('v1').innerHTML =
+      '<span class="lhs">route A &nbsp;&#10216;ax+by, z&#10217; =</span> ' + F(L) + '<br>' +
+      '<span class="lhs">route B &nbsp;a&#10216;x,z&#10217; + b&#10216;y,z&#10217; =</span> ' + F(R) + '<br>' +
+      (ok1 ? '<span class="ok">same number &larr; linearity holds</span>'
+           : '<span class="no">mismatch</span>');
+
+    var xy = x.map(function (v, i) { return v * y[i]; });
+    var yx = y.map(function (v, i) { return y[i] * x[i]; });
+    document.getElementById('rule2').innerHTML = panel([
+      { label: 'x', cells: x },
+      { label: 'y', cells: y },
+      { rule: 1 },
+      { label: 'x<sub>i</sub> y<sub>i</sub>', cells: xy, cls: 'p', sum: dot(x, y), op: 1 },
+      { label: 'y<sub>i</sub> x<sub>i</sub>', cells: yx, cls: 'p', sum: dot(y, x), op: 1 }
+    ]);
+    document.getElementById('v2').innerHTML =
+      '<span class="lhs">&#10216;x,y&#10217; =</span> ' + F(dot(x, y)) +
+      ' &nbsp;&nbsp;<span class="lhs">&#10216;y,x&#10217; =</span> ' + F(dot(y, x)) + '<br>' +
+      '<span class="ok">every column matches &larr; symmetry holds</span>';
+
+    var sq = x.map(function (v) { return v * v; });
+    var q = dot(x, x);
+    document.getElementById('rule3').innerHTML = panel([
+      { label: 'x', cells: x },
+      { rule: 1 },
+      { label: 'x<sub>i</sub><sup>2</sup>', cells: sq, cls: 'sq', sum: q, op: 1 }
+    ]);
+    var allZero = x.every(function (v) { return Math.abs(v) < 1e-12; });
+    var anyNeg = sq.some(function (v) { return v < 0; });
+    document.getElementById('v3').innerHTML =
+      '<span class="lhs">&#10216;x,x&#10217; =</span> ' + F(q) + '<br>' +
+      (anyNeg ? '<span class="no">a square came out negative &mdash; impossible</span>'
+        : allZero
+          ? '<span class="ok">zero &larr; and x is the zero vector, as the rule requires</span>'
+          : '<span class="ok">strictly positive &larr; no square can subtract</span>');
+  }
+
+  function preset(kind) {
+    var x = get('x');
+    if (kind === 'reset') { set('x', DEF_X); set('y', DEF_Y); }
+    else if (kind === 'same') { set('y', x); }
+    else if (kind === 'zero') { set('x', [0, 0, 0, 0, 0]); }
+    else if (kind === 'neg') {
+      set('x', x.map(function (v) { return v > 0 ? -v : v; }));
+    }
+    else if (kind === 'opp') { set('y', x.map(function (v) { return -v; })); }
+    else if (kind === 'orth') {
+      var y = get('y');
+      var dot = 0, nn = 0;
+      for (var i = 0; i < 5; i++) { dot += x[i] * y[i]; nn += x[i] * x[i]; }
+      var k = nn ? dot / nn : 0;
+      set('y', y.map(function (v, i) { return v - k * x[i]; }));
+    }
+    recompute();
+  }
+
+  document.querySelectorAll('input[data-v], #sa, #sb, #sw, #k00, #k01, #k02, #k11, #k12, #k22')
+    .forEach(function (el) { el.addEventListener('input', recompute); });
+  ['sepAngle', 'sepB'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', separable);
   });
-  window.STORY = { show: show };
-})();
-</script></body></html>
+  document.getElementById('phiT').addEventListener('input', phi1d);
+  document.getElementById('phiH').addEventListener('input', phi2d);
+  ['kSelI', 'kSelJ'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', kernelPair);
+  });
+  ['rSelI', 'rSelJ'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', rbf);
+  });
+  document.getElementById('rSigma').addEventListener('input', rbf);
+  ['a00', 'a01', 'a02', 'a10', 'a11', 'a12'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', linearKernel);
+  });
+  recompute();
+  setBasis('ortho');
+</script>
+</body>
+</html>
