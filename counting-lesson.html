@@ -177,6 +177,17 @@ svg.dots .dn{fill:#fff;stroke:var(--ink);stroke-width:2}svg.dots .dt{font:600 12
 .pf .slots{flex-wrap:nowrap}
 .pf.plan{grid-template-columns:12.5rem minmax(0,1fr)}
 .pf.plan .fn{font-size:.8rem;padding:.25rem .55rem}
+.colsum{display:grid;grid-template-columns:repeat(var(--w),1.7rem);font:600 1.15rem var(--mono);color:var(--ink);row-gap:1px}
+.colsum .cs{text-align:center;height:1.7rem;line-height:1.7rem}
+.colsum .cs.carry{color:var(--red);font-size:.85rem;height:1.1rem;line-height:1.1rem}
+.colsum .cs.hl{background:var(--amber-soft)}
+.colsum .csrule{border-top:2px solid var(--ink);height:0}
+.ctr{display:flex;gap:4px;flex-wrap:wrap}
+.cc{display:flex;flex-direction:column;gap:4px}
+.d{display:block;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--ink-soft)}
+.d.blue{background:#5b86c5;border-color:#2f5a96}.d.red{background:#d26a5f;border-color:#9a3329}.d.gap{border:1.5px dashed var(--red);background:#fff}
+.cboard .unk{background:repeating-linear-gradient(45deg,#eef1f3 0 4px,#fff 4px 8px)}
+.cboard .new{outline:2px solid var(--amber);outline-offset:-2px}
 body{overflow:hidden}
 .app{height:100vh;display:grid;grid-template-rows:auto 1fr}
 .top{display:flex;align-items:center;gap:.6rem;padding:.45rem .9rem;background:var(--sheet);border-bottom:3px solid var(--ink);flex-wrap:wrap}
@@ -278,6 +289,7 @@ a[data-state=closed] .dot{border-color:var(--green);background:var(--green)}
 .tabpanel .pm:not(.on) .pmn{font-size:.72rem}
 .tabpanel .pm.on{font-size:.8rem}
 .tabpanel .pm.skip:not(.on){opacity:.55}
+.tabpanel .pm:not(.on) i{display:none}
 </style></head><body><div class="app">
 <header class="top">
   <button id="rail-toggle" class="iconbtn" type="button" aria-label="Show problem list" aria-expanded="false" aria-controls="rail">☰</button>
